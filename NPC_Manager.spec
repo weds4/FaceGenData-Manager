@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(['NPC_Manager.py'],
-             pathex=['E:\\Skyrim SE\\SSEEdit git host to NPC_Manager'],
+             pathex=['E:\\GitHub\\NPC-FaceData-Manager'],
              binaries=[],
              datas=[],
              hiddenimports=[],

@@ -1,0 +1,343 @@
+# -*- coding: utf-8 -*-
+#starting refactor 5/7/2021
+import wx #not included in normal python install
+from os import rename
+from os import system
+from time import localtime
+from time import strftime
+import sys
+from json import dump
+from json import load
+from pathlib import Path
+from pathlib import PurePath
+
+CRED = '\033[93m'
+CEND = '\033[0m'
+errorLog = {
+    "noND":
+        """The message \"nif/dds not found\" means that the program did not find\
+ any nif or dds files to hide.\nThere are several reasons this can happen:
+  1. The files are already hidden. You may have already covered this NPC \
+previously.
+  2. The no other loaded mods have nifs/dds's for that NPC.
+  3. The NPC is missing the nif/dds from the mods you are trying to overwrite""",
+  
+    "NoMO2": 
+        "You did not choose a valid folder for your current MO2 profile"
+    }
+
+class nifDdsError(LookupError):
+    '''nif/dds missing'''
+    
+class MO2Error(LookupError):
+    '''MO2 profile not specified'''
+    
+def getSessionInfo():
+    session = Path("SSEEdit_log.txt").stat().st_mtime
+    return str(session)
+
+def loadConfigInfo():
+    with open("NPC_Manager.json", "a+") as configfile:
+        configfile.seek(0)
+        try: return load(configfile)
+        except: return {}
+
+def saveConfigInfo(config):
+    with open("NPC_Manager.json", "w") as configfile:
+            dump(config, configfile, indent=2)
+            
+def cleanUpOldSessions(sessionID):# if there are saved sessions that are two days older than the current session, delete them
+    with open("NPC_Manager.json", "r") as configfile:
+        config = load(configfile)
+    check = False
+    currentTime = int(float(sessionID)/3600/24/365)
+    for item in list(config):
+        try: 
+            time_days = int(float(item)/3600/24/365)
+        except: continue
+        if time_days+2 < currentTime:
+            config.pop(item)
+            check = True
+        if check: saveConfigInfo(config)
+    with open("NPC_Manager.log", "a+") as logfile:
+        logfile.seek(0)
+        log = logfile.readlines()
+    log.reverse()
+    for item in log:
+        if "Ending log" in item and not "[ERR] Unknown Session" in item: 
+            index = 0
+            for i in range(len(item)-2, 2, -1):
+                try: float(item[i-2:i])
+                except:
+                    index = i-1
+                    break
+            time = float(item[index:])
+            if int(time/3600/24/365) + 10 < currentTime:
+                log.reverse()
+                log = log[log.index(item)+1:]
+                with open("NPC_Manager.log", "w+") as logfile:
+                    logfile.writelines(log)
+                break
+
+def addLineStart(line):
+    ts = localtime()
+    line = strftime("%x %X", ts) +' '+line
+    if line[-1] != '\n':
+        return line+'\n'
+    else: return line
+
+def giveDebugInfo(errorCode):
+    with open("NPC_Manager.log", "a+") as logfile:
+        logfile.write(errorLog[errorCode]+'\n')
+
+def updateLog(log, error=False): #log must be array
+    for m in log: 
+        if error: print(CRED+m+CEND)
+        else: print(m)    
+    log = list(map(addLineStart, log))
+    with open("NPC_Manager.log", "a+") as logfile:
+        logfile.writelines(log)
+
+def isNewSession(currentSessionID, config):
+    if not currentSessionID in config:
+        config[currentSessionID] = {}
+        saveConfigInfo(config)
+        return True
+    else: return False
+    
+def requestProfilePath(title, likelyPath):
+    app = wx.App(None)
+    style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST
+    dialog = wx.DirDialog(None, title, likelyPath, style=style)
+    if dialog.ShowModal() == wx.ID_OK:
+        path = dialog.GetPath()
+    else:
+        path = None
+    dialog.Destroy()
+    del app # only here to stop the "variable unused warning"
+    return path
+    
+def getNPC(sysArgs):
+    return '00'+str(sysArgs[-1])[8:-1]
+
+def getModFile(sysArgs):
+    modfile = ''
+    for i in range(2, len(sysArgs)):
+        if sysArgs[i][0] == '\\':
+            break
+        elif i==2:
+            modfile = modfile + sysArgs[i]
+        else:
+            modfile = modfile +' '+ sysArgs[i]
+    for j in range(0, len(modfile)):
+        if modfile[j]==']':
+            modfile=modfile[j+2:] #+2 becase j is ']' and j+1 is '  '
+            break
+    return modfile
+
+def locateModDir(ESfile, modsPath): #ESFile == esp, esl, esm
+    directories = []    
+    for path in Path(modsPath).rglob('*.'+ESfile[-3:]):
+        if ESfile in str(path):
+            directories.append(str(path))
+    #directories is all full paths, next loop turns each full path into just one folder
+    for i in range(0, len(directories)):
+        returnVal = directories[i][:-(len(ESfile)+1)]
+        for j in range(len(returnVal)-1, 0, -1):
+            if returnVal[j]=='\\':
+                returnVal = returnVal[j+1:]
+                break
+        directories[i] = returnVal
+    return directories
+
+def findWinningMod(potentials, profilePath):#search modlist.txt to find the highest-in-priority mod
+    with open(profilePath+'\\modlist.txt') as modlistfile:
+        modlist = modlistfile.readlines()
+    for mod in modlist:
+        if mod[0] == '-':
+            continue
+        elif mod[1:-1] in potentials:
+            return mod[1:-1]
+
+def verifyModFilesLocation(modPath, npc): #modPath is full path to mod folder
+    fullPath = Path(modPath+"\\Meshes\\Actors\\Character\\FaceGenData\\FaceGeom")
+    check1 = False
+    check2 = True
+    if fullPath.exists():
+        for path in fullPath.rglob('*.nif'):
+            basename = str(path)[-12:-4]
+            if basename.upper() == npc:
+                check1 = True
+                break
+    else: check1 = False
+    fullPath = Path(modPath+"\\textures\\actors\character\\facegendata\\facetint")
+    if fullPath.exists():
+        for path in fullPath.rglob('*.dds'):
+            basename = str(path)[-12:-4]
+            if basename.upper() == npc:
+                check2 = True
+                break
+    else: check2 = False
+    if check1 and check2: 
+        return True
+    else: 
+        return False
+
+def determineKeep(listOfMods, modsPath, npc):
+    value = False
+    for mod in listOfMods:
+        if verifyModFilesLocation(modsPath+mod, npc):
+            value = mod
+    return value
+
+def listActiveMods(profilePath):
+    with open(profilePath+'\\modlist.txt') as modlistfile:
+        modlist = modlistfile.readlines()
+    activeMods = []
+    for mod in modlist:
+        if mod[0] == '+':
+            activeMods.append(mod[1:-1])
+    return activeMods
+
+def locateDataFiles(keep, fileType, modsPath, npc, profilePath): #DataFiles == nif, dds
+    paths = []
+    modslist = listActiveMods(profilePath) #used to be os.listdir "listdir(modsPath)"
+    for mod in modslist:
+        if mod == keep:
+            continue
+        if fileType == 'nif': 
+            fullpath = modsPath+mod+"\\Meshes\\Actors\\Character\\FaceGenData\\FaceGeom"
+        else: 
+            fullpath = modsPath+mod+"\\textures\\actors\character\\facegendata\\facetint"
+        for path in Path(fullpath).rglob('*.'+fileType):
+            basename = str(path)[-12:-4]
+            if basename.upper() == npc:
+                paths.append(path)
+    return len(paths),paths
+
+def requestModFolder(modsPath, npc, profilePath):
+    a,nifs = locateDataFiles("nowayamodisnamedthis", 'nif', modsPath, npc, profilePath)
+    for i in range(1, len(nifs)+1):
+        modDir = list(nifs[i-1].parts)[-8]
+        print(str(i)+":",modDir)
+    selection = int(input("Please enter the number for the mod you are trying to keep: "))
+    return list(nifs[selection-1].parts)[-8]
+
+def hideFiles(keep, modspath, npc, profilePath):
+    a,nifs = locateDataFiles(keep, 'nif', modspath, npc, profilePath)    
+    b,ddss = locateDataFiles(keep, 'dds', modspath, npc, profilePath)
+    messages = []
+    error = False
+    if a: 
+        for file in nifs: 
+            fileString = str(file)
+            rename(fileString, fileString+".mohidden")
+        messages.append("nif-hide success!")
+    else: 
+        messages.append("Error: did not hide nif")
+        error = True
+    if b: 
+        for file in ddss: 
+            fileString = str(file)
+            rename(fileString, fileString+".mohidden")
+        messages.append("dds-hide success!")
+    else: 
+        messages.append("Error: did not hide dds")
+        error = True
+        
+    if len(messages) > 0:
+        if error: 
+            updateLog(messages, True)
+            giveDebugInfo("noND")
+            raise nifDdsError("nifs and/or dds's were not hidden as expected")
+        else: updateLog(messages)
+
+def main():
+    try:
+        system("") #summmon system to get colored text!
+        
+        #initialization steps
+        currentSession = getSessionInfo()
+        configInfo = loadConfigInfo()
+        updateLog(["Starting log for: "+currentSession])
+        MO2Location = configInfo.get("MO2Location", "")
+        if MO2Location: MO2Location=MO2Location+"\\profiles"
+        if isNewSession(currentSession, configInfo):
+            profilePath = requestProfilePath("Please choose your current MO2 profile's folder", MO2Location)
+            if profilePath == None:
+                giveDebugInfo("NoMO2")
+                raise MO2Error("Must choose the folder of the current MO2 profile")
+            configInfo[currentSession]["profilePath"] = profilePath
+            saveConfigInfo(configInfo)
+        else:
+            profilePath = configInfo[currentSession].get("profilePath", None)
+        if profilePath == None:
+            profilePath = requestProfilePath("Please choose your current MO2 profile's folder", MO2Location)
+            if profilePath == None:
+                giveDebugInfo("NoMO2")
+                raise MO2Error("Must choose the folder of the current MO2 profile")
+            configInfo[currentSession]["profilePath"] = profilePath
+            saveConfigInfo(configInfo)
+        if MO2Location == "":
+            MO2Location = str(PurePath(profilePath).parents[1])
+            configInfo["MO2Location"] = MO2Location
+            saveConfigInfo(configInfo)
+        #
+        #main script
+        npc = getNPC(sys.argv)
+        updateLog(["npc is "+npc])
+        modfile = getModFile(sys.argv)
+        updateLog(["esp is "+modfile])
+        modspath = configInfo["MO2Location"] + "\\mods\\"
+        if not modfile in configInfo[currentSession]: #if config doesnt have an entry for this mod yet
+            modDirs = locateModDir(modfile, modspath)#time consumer
+            if len(modDirs) == 1:#only one folder in mo2\mods has this modfile
+                updateLog(["modDir is "+modDirs[0]])
+                if verifyModFilesLocation(modspath+modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
+                    configInfo[currentSession][modfile] = [modDirs[0]]
+                    saveConfigInfo(configInfo)
+                    hideFiles(modDirs[0], modspath, npc, profilePath)
+                else:# it doesn't have the nif/dds files
+                    modDir = requestModFolder(modspath, npc, profilePath)
+                    configInfo[currentSession][modfile] = [modDir]
+                    saveConfigInfo(configInfo)
+                    hideFiles(modDir, modspath, npc, profilePath)
+            else:#multiple folders in mo2\mods have this modfile
+                modDir = findWinningMod(modDirs, configInfo[currentSession]["profilePath"])
+                if verifyModFilesLocation(modspath+modDir, npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
+                    configInfo[currentSession][modfile] = [modDir]
+                    saveConfigInfo(configInfo) # used to have "if modDir:" in front, removed it cause idthink it applies anymore
+                    updateLog(["modDir is "+modDir])
+                    hideFiles(modDir, modspath, npc, profilePath)
+                else:# it doesn't have the nif/dds files
+                    modDir = requestModFolder(modspath, npc, profilePath)
+                    configInfo[currentSession][modfile] = [modDir]
+                    saveConfigInfo(configInfo)
+                    hideFiles(modDir, modspath, npc, profilePath)
+        else: #config does have an entry for this mod
+            modDir = determineKeep(configInfo[currentSession][modfile], modspath, npc)
+            if modDir and verifyModFilesLocation(modspath+modDir, npc):
+                hideFiles(modDir, modspath, npc, profilePath)
+            else: #it doesn't have the nif/dds files
+                modDir = requestModFolder(modspath, npc, profilePath)
+                configInfo[currentSession][modfile].append(modDir)
+                saveConfigInfo(configInfo)
+                updateLog(["modDir is "+modDir])
+                hideFiles(modDir, modspath, npc, profilePath)
+        #
+        cleanUpOldSessions(currentSession)
+        updateLog(["Ending log for: "+currentSession])
+    #
+    except Exception as e:
+        exception = sys.exc_info()[0]
+        updateLog([f"Error: {exception}, {e}"], True)
+        try: 
+            currentSession = getSessionInfo()
+            updateLog(["Ending log for: "+currentSession])
+        except:
+            updateLog(["Ending log for: [ERR] Unknown Session"])
+        input("Press Enter to quit")
+#
+if __name__ == '__main__':
+    main()
+    # input('end of __main__')

@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 #starting refactor 5/7/2021
-import wx #not included in normal python install
-from os import rename
-from os import system
-from time import localtime
-from time import strftime
-import sys
-from json import dump
-from json import load
-from pathlib import Path
-from pathlib import PurePath
-import logger
+try:
+    import wx #not included in normal python install
+    from os import rename
+    from os import system
+    import sys
+    from json import dump
+    from json import load
+    from pathlib import Path
+    from pathlib import PurePath
+    import logger
+except Exception as e:
+    input(e)
+    
 
 class nifDdsError(LookupError):
     '''nif/dds missing'''
@@ -215,7 +217,7 @@ def hideFiles(keep, modspath, npc, profilePath):
     if len(messages) > 0:
         if error: 
             logger.updateLog(messages, True)
-            logger.giveDebugInfo("noND")
+            logger.logDebugInfo("noND")
             raise nifDdsError("nifs and/or dds's were not hidden as expected")
         else: logger.updateLog(messages)
 
@@ -232,7 +234,7 @@ def main():
         if isNewSession(currentSession, configInfo):
             profilePath = requestProfilePath("Please choose your current MO2 profile's folder", MO2Location)
             if profilePath == None:
-                logger.giveDebugInfo("NoMO2")
+                logger.logDebugInfo("NoMO2")
                 raise MO2Error("Must choose the folder of the current MO2 profile")
             configInfo[currentSession]["profilePath"] = profilePath
             saveConfigInfo(configInfo)
@@ -241,7 +243,7 @@ def main():
         if profilePath == None:
             profilePath = requestProfilePath("Please choose your current MO2 profile's folder", MO2Location)
             if profilePath == None:
-                logger.giveDebugInfo("NoMO2")
+                logger.logDebugInfo("NoMO2")
                 raise MO2Error("Must choose the folder of the current MO2 profile")
             configInfo[currentSession]["profilePath"] = profilePath
             saveConfigInfo(configInfo)
@@ -307,4 +309,4 @@ def main():
 #
 if __name__ == '__main__':
     main()
-    # input('end of __main__')
+    input('end of __main__')

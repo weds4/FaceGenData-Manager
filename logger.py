@@ -1,3 +1,5 @@
+from time import localtime
+from time import strftime
 CRED = '\033[93m'
 CEND = '\033[0m'
 errorLog = {
@@ -12,17 +14,17 @@ previously.
     "NoMO2": 
         "You did not choose a valid folder for your current MO2 profile"
     }
-    
+
+def logDebugInfo(errorCode):
+    with open("NPC_Manager.log", "a+") as logfile:
+        logfile.write(errorLog[errorCode]+'\n')
+        
 def addLineStart(line):
     ts = localtime()
     line = strftime("%x %X", ts) +' '+line
     if line[-1] != '\n':
         return line+'\n'
     else: return line
-
-def giveDebugInfo(errorCode):
-    with open("NPC_Manager.log", "a+") as logfile:
-        logfile.write(errorLog[errorCode]+'\n')
 
 def updateLog(log, error=False): #log must be array
     for m in log: 

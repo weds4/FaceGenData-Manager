@@ -10,21 +10,7 @@ from json import dump
 from json import load
 from pathlib import Path
 from pathlib import PurePath
-
-CRED = '\033[93m'
-CEND = '\033[0m'
-errorLog = {
-    "noND":
-        """The message \"nif/dds not found\" means that the program did not find\
- any nif or dds files to hide.\nThere are several reasons this can happen:
-  1. The files are already hidden. You may have already covered this NPC \
-previously.
-  2. The no other loaded mods have nifs/dds's for that NPC.
-  3. The NPC is missing the nif/dds from the mods you are trying to overwrite""",
-  
-    "NoMO2": 
-        "You did not choose a valid folder for your current MO2 profile"
-    }
+import logger
 
 class nifDdsError(LookupError):
     '''nif/dds missing'''
@@ -78,25 +64,6 @@ def cleanUpOldSessions(sessionID):# if there are saved sessions that are two day
                 with open("NPC_Manager.log", "w+") as logfile:
                     logfile.writelines(log)
                 break
-
-def addLineStart(line):
-    ts = localtime()
-    line = strftime("%x %X", ts) +' '+line
-    if line[-1] != '\n':
-        return line+'\n'
-    else: return line
-
-def giveDebugInfo(errorCode):
-    with open("NPC_Manager.log", "a+") as logfile:
-        logfile.write(errorLog[errorCode]+'\n')
-
-def updateLog(log, error=False): #log must be array
-    for m in log: 
-        if error: print(CRED+m+CEND)
-        else: print(m)    
-    log = list(map(addLineStart, log))
-    with open("NPC_Manager.log", "a+") as logfile:
-        logfile.writelines(log)
 
 def isNewSession(currentSessionID, config):
     if not currentSessionID in config:
@@ -247,10 +214,10 @@ def hideFiles(keep, modspath, npc, profilePath):
         
     if len(messages) > 0:
         if error: 
-            updateLog(messages, True)
-            giveDebugInfo("noND")
+            logger.updateLog(messages, True)
+            logger.giveDebugInfo("noND")
             raise nifDdsError("nifs and/or dds's were not hidden as expected")
-        else: updateLog(messages)
+        else: logger.updateLog(messages)
 
 def main():
     try:
@@ -259,13 +226,13 @@ def main():
         #initialization steps
         currentSession = getSessionInfo()
         configInfo = loadConfigInfo()
-        updateLog(["Starting log for: "+currentSession])
+        logger.updateLog(["Starting log for: "+currentSession])
         MO2Location = configInfo.get("MO2Location", "")
         if MO2Location: MO2Location=MO2Location+"\\profiles"
         if isNewSession(currentSession, configInfo):
             profilePath = requestProfilePath("Please choose your current MO2 profile's folder", MO2Location)
             if profilePath == None:
-                giveDebugInfo("NoMO2")
+                logger.giveDebugInfo("NoMO2")
                 raise MO2Error("Must choose the folder of the current MO2 profile")
             configInfo[currentSession]["profilePath"] = profilePath
             saveConfigInfo(configInfo)
@@ -274,7 +241,7 @@ def main():
         if profilePath == None:
             profilePath = requestProfilePath("Please choose your current MO2 profile's folder", MO2Location)
             if profilePath == None:
-                giveDebugInfo("NoMO2")
+                logger.giveDebugInfo("NoMO2")
                 raise MO2Error("Must choose the folder of the current MO2 profile")
             configInfo[currentSession]["profilePath"] = profilePath
             saveConfigInfo(configInfo)
@@ -285,14 +252,14 @@ def main():
         #
         #main script
         npc = getNPC(sys.argv)
-        updateLog(["npc is "+npc])
+        logger.updateLog(["npc is "+npc])
         modfile = getModFile(sys.argv)
-        updateLog(["esp is "+modfile])
+        logger.updateLog(["esp is "+modfile])
         modspath = configInfo["MO2Location"] + "\\mods\\"
         if not modfile in configInfo[currentSession]: #if config doesnt have an entry for this mod yet
             modDirs = locateModDir(modfile, modspath)#time consumer
             if len(modDirs) == 1:#only one folder in mo2\mods has this modfile
-                updateLog(["modDir is "+modDirs[0]])
+                logger.updateLog(["modDir is "+modDirs[0]])
                 if verifyModFilesLocation(modspath+modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
                     configInfo[currentSession][modfile] = [modDirs[0]]
                     saveConfigInfo(configInfo)
@@ -307,7 +274,7 @@ def main():
                 if verifyModFilesLocation(modspath+modDir, npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
                     configInfo[currentSession][modfile] = [modDir]
                     saveConfigInfo(configInfo) # used to have "if modDir:" in front, removed it cause idthink it applies anymore
-                    updateLog(["modDir is "+modDir])
+                    logger.updateLog(["modDir is "+modDir])
                     hideFiles(modDir, modspath, npc, profilePath)
                 else:# it doesn't have the nif/dds files
                     modDir = requestModFolder(modspath, npc, profilePath)
@@ -322,20 +289,20 @@ def main():
                 modDir = requestModFolder(modspath, npc, profilePath)
                 configInfo[currentSession][modfile].append(modDir)
                 saveConfigInfo(configInfo)
-                updateLog(["modDir is "+modDir])
+                logger.updateLog(["modDir is "+modDir])
                 hideFiles(modDir, modspath, npc, profilePath)
         #
         cleanUpOldSessions(currentSession)
-        updateLog(["Ending log for: "+currentSession])
+        logger.updateLog(["Ending log for: "+currentSession])
     #
     except Exception as e:
         exception = sys.exc_info()[0]
-        updateLog([f"Error: {exception}, {e}"], True)
+        logger.updateLog([f"Error: {exception}, {e}"], True)
         try: 
             currentSession = getSessionInfo()
-            updateLog(["Ending log for: "+currentSession])
+            logger.updateLog(["Ending log for: "+currentSession])
         except:
-            updateLog(["Ending log for: [ERR] Unknown Session"])
+            logger.updateLog(["Ending log for: [ERR] Unknown Session"])
         input("Press Enter to quit")
 #
 if __name__ == '__main__':

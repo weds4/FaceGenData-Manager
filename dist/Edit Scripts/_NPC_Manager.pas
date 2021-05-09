@@ -23,7 +23,7 @@ begin
   AddMessage('Processing '+FullPath(e));
   AddRequiredElementMasters(e, patch, False);
   wbCopyElementToFile(e, patch, False, True);
-  if GetElementNativeValues(e, 'ACBS\Template Flags\Use Traits') <> -1 then ShellExecuteWait(0, nil, 'NPC_Manager.exe', FullPath(e), nil, SW_SHOWNORMAL);
+  if GetElementNativeValues(e, 'ACBS\Template Flags\Use Traits') <> -1 then ShellExecuteWait(0, nil, 'NPC_Manager.py', FullPath(e), nil, SW_SHOWNORMAL);
 
 end;
 

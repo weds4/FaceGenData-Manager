@@ -9,6 +9,7 @@ try:
     from pathlib import PurePath
     import logger
     import configstorage as cs
+    import fileTools as ft
 except Exception as e:
     input(e)
 
@@ -49,58 +50,10 @@ def getModFile(sysArgs):
             break
     return modfile
 
-def locateModDir(ESfile, modsPath): #ESFile == esp, esl, esm
-    directories = []
-    for path in Path(modsPath).rglob('*.'+ESfile[-3:]):
-        if ESfile in str(path):
-            directories.append(str(path))
-    #directories is all full paths, next loop turns each full path into just one folder
-    for i in range(0, len(directories)):
-        returnVal = directories[i][:-(len(ESfile)+1)]
-        for j in range(len(returnVal)-1, 0, -1):
-            if returnVal[j]=='\\':
-                returnVal = returnVal[j+1:]
-                break
-        directories[i] = returnVal
-    return directories
-
-def findWinningMod(potentials, profilePath):#search modlist.txt to find the highest-in-priority mod
-    with open(profilePath+'\\modlist.txt') as modlistfile:
-        modlist = modlistfile.readlines()
-    for mod in modlist:
-        if mod[0] == '-':
-            continue
-        elif mod[1:-1] in potentials:
-            return mod[1:-1]
-
-def verifyModFilesLocation(modPath, npc): #modPath is full path to mod folder
-    fullPath = Path(modPath+"\\Meshes\\Actors\\Character\\FaceGenData\\FaceGeom")
-    check1 = False
-    check2 = True
-    if fullPath.exists():
-        for path in fullPath.rglob('*.nif'):
-            basename = str(path)[-12:-4]
-            if basename.upper() == npc:
-                check1 = True
-                break
-    else: check1 = False
-    fullPath = Path(modPath+"\\textures\\actors\\character\\facegendata\\facetint")
-    if fullPath.exists():
-        for path in fullPath.rglob('*.dds'):
-            basename = str(path)[-12:-4]
-            if basename.upper() == npc:
-                check2 = True
-                break
-    else: check2 = False
-    if check1 and check2:
-        return True
-    else:
-        return False
-
 def determineKeep(listOfMods, modsPath, npc):
     value = False
     for mod in listOfMods:
-        if verifyModFilesLocation(modsPath+mod, npc):
+        if ft.verifyModFilesLocation(modsPath+mod, npc):
             value = mod
     return value
 
@@ -204,10 +157,10 @@ def main():
         logger.updateLog(["esp is "+modfile])
         modspath = configInfo["MO2Location"] + "\\mods\\"
         if modfile not in configInfo[currentSession]: #if config doesnt have an entry for this mod yet
-            modDirs = locateModDir(modfile, modspath)#time consumer
+            modDirs = ft.locateModDir(modfile, modspath)#time consumer
             if len(modDirs) == 1:#only one folder in mo2\mods has this modfile
                 logger.updateLog(["modDir is "+modDirs[0]])
-                if verifyModFilesLocation(modspath+modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
+                if ft.verifyModFilesLocation(modspath+modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
                     configInfo[currentSession][modfile] = [modDirs[0]]
                     cs.saveConfigInfo(configInfo)
                     hideFiles(modDirs[0], modspath, npc, profilePath)
@@ -217,8 +170,8 @@ def main():
                     cs.saveConfigInfo(configInfo)
                     hideFiles(modDir, modspath, npc, profilePath)
             else:#multiple folders in mo2\mods have this modfile
-                modDir = findWinningMod(modDirs, configInfo[currentSession]["profilePath"])
-                if verifyModFilesLocation(modspath+modDir, npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
+                modDir = ft.findWinningMod(modDirs, configInfo[currentSession]["profilePath"])
+                if ft.verifyModFilesLocation(modspath+modDir, npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
                     configInfo[currentSession][modfile] = [modDir]
                     cs.saveConfigInfo(configInfo) # used to have "if modDir:" in front, removed it cause idthink it applies anymore
                     logger.updateLog(["modDir is "+modDir])
@@ -230,7 +183,7 @@ def main():
                     hideFiles(modDir, modspath, npc, profilePath)
         else: #config does have an entry for this mod
             modDir = determineKeep(configInfo[currentSession][modfile], modspath, npc)
-            if modDir and verifyModFilesLocation(modspath+modDir, npc):
+            if modDir and ft.verifyModFilesLocation(modspath+modDir, npc):
                 hideFiles(modDir, modspath, npc, profilePath)
             else: #it doesn't have the nif/dds files
                 modDir = requestModFolder(modspath, npc, profilePath)

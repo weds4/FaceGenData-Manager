@@ -11,7 +11,6 @@ try:
 except Exception as e:
     input(e)
 
-
 class nifDdsError(LookupError):
     '''nif/dds missing'''
 

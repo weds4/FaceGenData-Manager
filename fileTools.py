@@ -1,4 +1,17 @@
 from pathlib import Path
+import wx #not included in normal python install
+
+def requestProfilePath(title, likelyPath):
+    app = wx.App(None)
+    style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST
+    dialog = wx.DirDialog(None, title, likelyPath, style=style)
+    if dialog.ShowModal() == wx.ID_OK:
+        path = dialog.GetPath()
+    else:
+        path = None
+    dialog.Destroy()
+    del app # only here to stop the "variable unused warning"
+    return path
 
 def locateModDir(ESfile, modsPath): #ESFile == esp, esl, esm
     directories = []
@@ -47,3 +60,43 @@ def verifyModFilesLocation(modPath, npc): #modPath is full path to mod folder
         return True
     else:
         return False
+
+def determineKeep(listOfMods, modsPath, npc):
+    value = False
+    for mod in listOfMods:
+        if verifyModFilesLocation(modsPath+mod, npc):
+            value = mod
+    return value
+
+def listActiveMods(profilePath):
+    with open(profilePath+'\\modlist.txt') as modlistfile:
+        modlist = modlistfile.readlines()
+    activeMods = []
+    for mod in modlist:
+        if mod[0] == '+':
+            activeMods.append(mod[1:-1])
+    return activeMods
+
+def locateDataFiles(keep, fileType, modsPath, npc, profilePath): #DataFiles == nif, dds
+    paths = []
+    modslist = listActiveMods(profilePath) #used to be os.listdir "listdir(modsPath)"
+    for mod in modslist:
+        if mod == keep:
+            continue
+        if fileType == 'nif':
+            fullpath = modsPath+mod+"\\Meshes\\Actors\\Character\\FaceGenData\\FaceGeom"
+        else:
+            fullpath = modsPath+mod+"\\textures\\actors\\character\\facegendata\\facetint"
+        for path in Path(fullpath).rglob('*.'+fileType):
+            basename = str(path)[-12:-4]
+            if basename.upper() == npc:
+                paths.append(path)
+    return len(paths), paths
+
+def requestModFolder(modsPath, npc, profilePath):
+    a,nifs = locateDataFiles("nowayamodisnamedthis", 'nif', modsPath, npc, profilePath)
+    for i in range(1, len(nifs)+1):
+        modDir = list(nifs[i-1].parts)[-8]
+        print(str(i)+":",modDir)
+    selection = int(input("Please enter the number for the mod you are trying to keep: "))
+    return list(nifs[selection-1].parts)[-8]

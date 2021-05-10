@@ -10,15 +10,17 @@ def getSessionInfo():
 def loadConfigInfo():
     with open("NPC_Manager.json", "a+") as configfile:
         configfile.seek(0)
-        try: return load(configfile)
-        except: return {}
+        try:
+            return load(configfile)
+        except FileNotFoundError():
+            return {}
 
 def saveConfigInfo(config):
     with open("NPC_Manager.json", "w") as configfile:
-            dump(config, configfile, indent=2)
+        dump(config, configfile, indent=2)
 
 def isNewSession(currentSessionID, config):
-    if not currentSessionID in config:
+    if currentSessionID not in config:
         config[currentSessionID] = {}
         saveConfigInfo(config)
         return True
@@ -32,7 +34,7 @@ def cleanUpOldSessions(sessionID):# if there are saved sessions that are two day
     for item in list(config):
         try:
             time_days = int(float(item)/3600/24/365)
-        except: continue
+        except ValueError(): continue
         if time_days+2 < currentTime:
             config.pop(item)
             check = True

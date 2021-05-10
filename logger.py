@@ -35,6 +35,7 @@ def updateLog(log, error=False): #log must be array
         logfile.writelines(log)
 
 def cleanUpLog(sessionID):
+    currentTime = int(float(sessionID)/3600/24/365)
     with open("NPC_Manager.log", "a+") as logfile:
         logfile.seek(0)
         log = logfile.readlines()

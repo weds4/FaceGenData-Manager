@@ -144,16 +144,20 @@ def requestModFolder(modsPath, npc, profilePath):
     selection = int(input("Please enter the number for the mod you are trying to keep: "))
     return list(nifs[selection-1].parts)[-8]
 
-def cleanUpOldSessions(sessionID):# if there are saved sessions that are two days older than the current session, delete them
+def cleanUpOldSessions(sessionID):# if there are more than 10 saved sessions that are two days older than the current session, delete them
     with open("NPC_Manager.json", "r") as configfile:
         config = load(configfile)
-    check = False
-    currentTime = int(float(sessionID)/3600/24/365)
-    for item in list(config):
-        try:
-            time_days = int(float(item)/3600/24/365)
-        except ValueError(): continue
-        if time_days+2 < currentTime:
-            config.pop(item)
-            check = True
+    configKeys = list(config)
+    keyCount = len(configKeys)
+    if keyCount > 10:
+        check = False
+        currentTime = int(float(sessionID)/3600/24/365)
+        for i in range(0, keyCount-10):# hopefully this loops over the oldest n configs where n=keycount-10
+            item = configKeys[i]
+            try:
+                time_days = int(float(item)/3600/24/365)
+            except ValueError(): continue
+            if time_days+2 < currentTime:
+                config.pop(item)
+                check = True
         if check: saveConfigInfo(config)

@@ -6,13 +6,13 @@ try:
     from pathlib import PurePath
     import extensions.logger as logger
     import extensions.ExtensionFuncs as exf
-except Exception as e:
+except ModuleNotFoundError as e:
     input(e)
 
 def main():
     try:
         #initialization steps
-        system("") #summmon system to get colored text!
+        system("")# summmon system to get colored text!
         currentSession = exf.getSessionInfo()
         configInfo = exf.loadConfigInfo()
         logger.updateLog(["Starting log for: "+currentSession])
@@ -30,15 +30,17 @@ def main():
             MO2Location = str(PurePath(profilePath).parents[1])
             configInfo["MO2Location"] = MO2Location
             exf.saveConfigInfo(configInfo)
-        #
-        #main script
+
         npc = exf.getNPC(sys.argv)
         modfile = exf.getModFile(sys.argv)
-        logger.updateLog(["esp is "+modfile, "npc is "+npc])
         modspath = configInfo["MO2Location"] + "\\mods\\"
-        if modfile not in configInfo[currentSession]: #if config doesnt have an entry for this mod yet
-            modDirs = exf.locateModDir(modfile, modspath)#time consumer
-            if len(modDirs) == 1:#only one folder in mo2\mods has this modfile
+        profileData = exf.getModlist(profilePath)# a list of pathlib Paths to all active mods
+        logger.updateLog(["esp is "+modfile, "npc is "+npc, "mods path is "+modspath], "active mods count is "+str(len(profileData)))
+
+        #main script
+        if modfile not in configInfo[currentSession]:# if config doesnt have an entry for this mod yet
+            modDirs = exf.locateModDir(modfile, modspath)# time consumer
+            if len(modDirs) == 1:# only one folder in mo2\mods has this modfile
                 logger.updateLog(["modDir is "+modDirs[0]])
                 if exf.verifyModFilesLocation(modspath+modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
                     configInfo[currentSession][modfile] = [modDirs[0]]
@@ -61,11 +63,11 @@ def main():
                     configInfo[currentSession][modfile] = [modDir]
                     exf.saveConfigInfo(configInfo)
                     exf.hideFiles(modDir, modspath, npc, profilePath)
-        else: #config does have an entry for this mod
+        else:# config does have an entry for this mod
             modDir = exf.determineKeep(configInfo[currentSession][modfile], modspath, npc)
             if modDir and exf.verifyModFilesLocation(modspath+modDir, npc):
                 exf.hideFiles(modDir, modspath, npc, profilePath)
-            else: #it doesn't have the nif/dds files
+            else:# it doesn't have the nif/dds files
                 modDir = exf.requestModFolder(modspath, npc, profilePath)
                 configInfo[currentSession][modfile].append(modDir)
                 exf.saveConfigInfo(configInfo)

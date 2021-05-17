@@ -5,12 +5,12 @@ try:
     from json import dump
     import extensions.logger as logger
     from os import rename
-except Exception as e:
+except ModuleNotFoundError as e:
     input(e)
 
 class MO2Error(LookupError):
     '''MO2 profile not specified'''
-    
+
 class nifDdsError(LookupError):
     '''nif/dds missing'''
 
@@ -75,6 +75,19 @@ def getModFile(sysArgs):
             modfile=modfile[j+2:] #+2 becase j is ']' and j+1 is '  '
             break
     return modfile
+
+def getModlist(profilePath, modsPath):
+    with open(profilePath+"modlist.txt") as modlisttxt:
+        temp = modlisttxt.readlines()
+    modlistdata = []
+    for line in temp:
+        if line[0] == "+":
+            modlistdata.append(line[1:-1])
+    fullpaths = []
+    for path in Path(modsPath).glob('*'):
+        if path.name in modlistdata:
+            fullpaths.append(path)
+    return fullpaths
 
 def locateModDir(ESfile, modsPath): #ESFile == esp, esl, esm
     directories = []

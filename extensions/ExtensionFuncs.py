@@ -26,20 +26,6 @@ def isNewSession(currentSessionID, config):
         return True
     else: return False
 
-def cleanUpOldSessions(sessionID):# if there are saved sessions that are two days older than the current session, delete them
-    with open("NPC_Manager.json", "r") as configfile:
-        config = load(configfile)
-    check = False
-    currentTime = int(float(sessionID)/3600/24/365)
-    for item in list(config):
-        try:
-            time_days = int(float(item)/3600/24/365)
-        except ValueError(): continue
-        if time_days+2 < currentTime:
-            config.pop(item)
-            check = True
-        if check: saveConfigInfo(config)
-
 def requestProfilePath(title, likelyPath):
     app = wx.App(None)
     style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST
@@ -51,6 +37,24 @@ def requestProfilePath(title, likelyPath):
     dialog.Destroy()
     del app # only here to stop the "variable unused warning"
     return path
+
+def getNPC(sysArgs):
+    return '00'+str(sysArgs[-1])[8:-1]
+
+def getModFile(sysArgs):
+    modfile = ''
+    for i in range(2, len(sysArgs)):
+        if sysArgs[i][0] == '\\':
+            break
+        elif i==2:
+            modfile = modfile + sysArgs[i]
+        else:
+            modfile = modfile +' '+ sysArgs[i]
+    for j in range(0, len(modfile)):
+        if modfile[j]==']':
+            modfile=modfile[j+2:] #+2 becase j is ']' and j+1 is '  '
+            break
+    return modfile
 
 def locateModDir(ESfile, modsPath): #ESFile == esp, esl, esm
     directories = []
@@ -66,15 +70,6 @@ def locateModDir(ESfile, modsPath): #ESFile == esp, esl, esm
                 break
         directories[i] = returnVal
     return directories
-
-def findWinningMod(potentials, profilePath):#search modlist.txt to find the highest-in-priority mod
-    with open(profilePath+'\\modlist.txt') as modlistfile:
-        modlist = modlistfile.readlines()
-    for mod in modlist:
-        if mod[0] == '-':
-            continue
-        elif mod[1:-1] in potentials:
-            return mod[1:-1]
 
 def verifyModFilesLocation(modPath, npc): #modPath is full path to mod folder
     fullPath = Path(modPath+"\\Meshes\\Actors\\Character\\FaceGenData\\FaceGeom")
@@ -99,6 +94,15 @@ def verifyModFilesLocation(modPath, npc): #modPath is full path to mod folder
         return True
     else:
         return False
+
+def findWinningMod(potentials, profilePath):#search modlist.txt to find the highest-in-priority mod
+    with open(profilePath+'\\modlist.txt') as modlistfile:
+        modlist = modlistfile.readlines()
+    for mod in modlist:
+        if mod[0] == '-':
+            continue
+        elif mod[1:-1] in potentials:
+            return mod[1:-1]
 
 def determineKeep(listOfMods, modsPath, npc):
     value = False
@@ -139,3 +143,17 @@ def requestModFolder(modsPath, npc, profilePath):
         print(str(i)+":",modDir)
     selection = int(input("Please enter the number for the mod you are trying to keep: "))
     return list(nifs[selection-1].parts)[-8]
+
+def cleanUpOldSessions(sessionID):# if there are saved sessions that are two days older than the current session, delete them
+    with open("NPC_Manager.json", "r") as configfile:
+        config = load(configfile)
+    check = False
+    currentTime = int(float(sessionID)/3600/24/365)
+    for item in list(config):
+        try:
+            time_days = int(float(item)/3600/24/365)
+        except ValueError(): continue
+        if time_days+2 < currentTime:
+            config.pop(item)
+            check = True
+        if check: saveConfigInfo(config)

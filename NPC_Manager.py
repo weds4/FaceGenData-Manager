@@ -16,24 +16,6 @@ class nifDdsError(LookupError):
 class MO2Error(LookupError):
     '''MO2 profile not specified'''
 
-def getNPC(sysArgs):
-    return '00'+str(sysArgs[-1])[8:-1]
-
-def getModFile(sysArgs):
-    modfile = ''
-    for i in range(2, len(sysArgs)):
-        if sysArgs[i][0] == '\\':
-            break
-        elif i==2:
-            modfile = modfile + sysArgs[i]
-        else:
-            modfile = modfile +' '+ sysArgs[i]
-    for j in range(0, len(modfile)):
-        if modfile[j]==']':
-            modfile=modfile[j+2:] #+2 becase j is ']' and j+1 is '  '
-            break
-    return modfile
-
 def hideFiles(keep, modspath, npc, profilePath):
     a,nifs = exf.locateDataFiles(keep, 'nif', modspath, npc, profilePath)
     b,ddss = exf.locateDataFiles(keep, 'dds', modspath, npc, profilePath)
@@ -95,10 +77,9 @@ def main():
             exf.saveConfigInfo(configInfo)
         #
         #main script
-        npc = getNPC(sys.argv)
-        logger.updateLog(["npc is "+npc])
-        modfile = getModFile(sys.argv)
-        logger.updateLog(["esp is "+modfile])
+        npc = exf.getNPC(sys.argv)
+        modfile = exf.getModFile(sys.argv)
+        logger.updateLog(["esp is "+modfile, "npc is "+npc])
         modspath = configInfo["MO2Location"] + "\\mods\\"
         if modfile not in configInfo[currentSession]: #if config doesnt have an entry for this mod yet
             modDirs = exf.locateModDir(modfile, modspath)#time consumer

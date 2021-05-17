@@ -1,7 +1,18 @@
-from pathlib import Path
-import wx #not included in normal python install
-from json import load
-from json import dump
+try:
+    from pathlib import Path
+    import wx #not included in normal python install
+    from json import load
+    from json import dump
+    import extensions.logger as logger
+    from os import rename
+except Exception as e:
+    input(e)
+
+class MO2Error(LookupError):
+    '''MO2 profile not specified'''
+    
+class nifDdsError(LookupError):
+    '''nif/dds missing'''
 
 def getSessionInfo():
     session = Path("SSEEdit_log.txt").stat().st_mtime
@@ -38,6 +49,15 @@ def requestProfilePath(title, likelyPath):
     del app # only here to stop the "variable unused warning"
     return path
 
+def getProfilePath(MO2Location, configInfo, currentSession):
+    '''get profile path using wx prompt'''
+    profilePath = requestProfilePath("Please choose your current MO2 profile's folder", MO2Location)
+    if profilePath is None:
+        logger.logDebugInfo("NoMO2")
+        raise MO2Error("Must choose the folder of the current MO2 profile")
+    configInfo[currentSession]["profilePath"] = profilePath
+    saveConfigInfo(configInfo)
+    return profilePath
 def getNPC(sysArgs):
     return '00'+str(sysArgs[-1])[8:-1]
 
@@ -143,6 +163,36 @@ def requestModFolder(modsPath, npc, profilePath):
         print(str(i)+":",modDir)
     selection = int(input("Please enter the number for the mod you are trying to keep: "))
     return list(nifs[selection-1].parts)[-8]
+
+def hideFiles(keep, modspath, npc, profilePath):
+    a,nifs = locateDataFiles(keep, 'nif', modspath, npc, profilePath)
+    b,ddss = locateDataFiles(keep, 'dds', modspath, npc, profilePath)
+    messages = []
+    error = False
+    if a:
+        for file in nifs:
+            fileString = str(file)
+            rename(fileString, fileString+".mohidden")
+        messages.append("nif-hide success!")
+    else:
+        messages.append("Error: did not hide nif")
+        error = True
+    if b:
+        for file in ddss:
+            fileString = str(file)
+            rename(fileString, fileString+".mohidden")
+        messages.append("dds-hide success!")
+    else:
+        messages.append("Error: did not hide dds")
+        error = True
+
+    if len(messages) > 0:
+        if error:
+            logger.updateLog(messages, True)
+            logger.logDebugInfo("noND")
+            raise nifDdsError("nifs and/or dds's were not hidden as expected")
+        else: logger.updateLog(messages)
+
 
 def cleanUpOldSessions(sessionID):# if there are more than 10 saved sessions that are two days older than the current session, delete them
     with open("NPC_Manager.json", "r") as configfile:

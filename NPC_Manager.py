@@ -34,15 +34,15 @@ def main():
         npc = exf.getNPC(sys.argv)
         modfile = exf.getModFile(sys.argv)
         modspath = configInfo["MO2Location"] + "\\mods\\"
-        profileData = exf.getModlist(profilePath)# a list of pathlib Paths to all active mods
+        profileData = exf.getModlist(profilePath, modspath)# a list of pathlib Paths to all active mods
         logger.updateLog(["esp is "+modfile, "npc is "+npc, "mods path is "+modspath], "active mods count is "+str(len(profileData)))
 
         #main script
         if modfile not in configInfo[currentSession]:# if config doesnt have an entry for this mod yet
             modDirs = exf.locateModDir(modfile, modspath)# time consumer
             if len(modDirs) == 1:# only one folder in mo2\mods has this modfile
-                logger.updateLog(["modDir is "+modDirs[0]])
-                if exf.verifyModFilesLocation(modspath+modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
+                logger.updateLog(["modDir is "+modDirs[0].name])
+                if exf.verifyModFilesLocation(modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
                     configInfo[currentSession][modfile] = [modDirs[0]]
                     exf.saveConfigInfo(configInfo)
                     exf.hideFiles(modDirs[0], modspath, npc, profilePath)

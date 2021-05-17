@@ -77,32 +77,14 @@ def getModFile(sysArgs):
     return modfile
 
 def getModlist(profilePath, modsPath):
-    with open(profilePath+"modlist.txt") as modlisttxt:
+    '''this returns a list (of windows paths) for every active mod in the selected profile'''
+    with open(profilePath+"\\modlist.txt") as modlisttxt:
         temp = modlisttxt.readlines()
-    modlistdata = []
-    for line in temp:
-        if line[0] == "+":
-            modlistdata.append(line[1:-1])
-    fullpaths = []
-    for path in Path(modsPath).glob('*'):
-        if path.name in modlistdata:
-            fullpaths.append(path)
-    return fullpaths
+    return [Path(modsPath+line[1:-1]) for line in temp if line[0] == "+"]
 
-def locateModDir(ESfile, modsPath): #ESFile == esp, esl, esm
-    directories = []
-    for path in Path(modsPath).rglob('*.'+ESfile[-3:]):
-        if ESfile in str(path):
-            directories.append(str(path))
-    #directories is all full paths, next loop turns each full path into just one folder
-    for i in range(0, len(directories)):
-        returnVal = directories[i][:-(len(ESfile)+1)]
-        for j in range(len(returnVal)-1, 0, -1):
-            if returnVal[j]=='\\':
-                returnVal = returnVal[j+1:]
-                break
-        directories[i] = returnVal
-    return directories
+def locateModDir(ESfile, modlist): #ESFile == esp, esl, esm
+    '''this returns a list (of strings) of all "MO2\\mods" directories that have the ESfile in them'''
+    return [str(path.parent) for mod in modlist for path in mod.rglob(ESfile)]
 
 def verifyModFilesLocation(modPath, npc): #modPath is full path to mod folder
     fullPath = Path(modPath+"\\Meshes\\Actors\\Character\\FaceGenData\\FaceGeom")

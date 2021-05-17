@@ -123,10 +123,7 @@ def verifyModFilesLocation(modPath, npc): #modPath is full path to mod folder
                 check2 = True
                 break
     else: check2 = False
-    if check1 and check2:
-        return True
-    else:
-        return False
+    return check1 and check2
 
 def findWinningMod(potentials, profilePath):#search modlist.txt to find the highest-in-priority mod
     with open(profilePath+'\\modlist.txt') as modlistfile:
@@ -170,7 +167,7 @@ def locateDataFiles(keep, fileType, modsPath, npc, profilePath): #DataFiles == n
     return len(paths), paths
 
 def requestModFolder(modsPath, npc, profilePath):
-    a,nifs = locateDataFiles("nowayamodisnamedthis", 'nif', modsPath, npc, profilePath)
+    a,nifs = locateDataFiles("", 'nif', modsPath, npc, profilePath)
     for i in range(1, len(nifs)+1):
         modDir = list(nifs[i-1].parts)[-8]
         print(str(i)+":",modDir)

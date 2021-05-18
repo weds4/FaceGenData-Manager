@@ -58,7 +58,9 @@ def getProfilePath(MO2Location, configInfo, currentSession):
     configInfo[currentSession]["profilePath"] = profilePath
     saveConfigInfo(configInfo)
     return profilePath
+
 def getNPC(sysArgs):
+    '''inspect sysArgv for the npc formID'''
     return '00'+str(sysArgs[-1])[8:-1]
 
 def getModFile(sysArgs):

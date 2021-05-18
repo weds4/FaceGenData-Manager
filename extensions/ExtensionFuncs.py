@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 try:
     from pathlib import Path
     import wx# not included in normal python install

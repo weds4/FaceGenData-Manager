@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from time import localtime
 from time import strftime
 CRED = '\033[93m'

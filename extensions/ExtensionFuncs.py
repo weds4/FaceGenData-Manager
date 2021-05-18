@@ -117,16 +117,18 @@ def verifyModFilesLocation(modPath, npc):# modPath is full path to mod folder
     return check1 and check2
 
 def listActiveMods(modlist):
+    '''this returns a list of just the folder name for all the full paths in modlist'''
     return [path.name for path in modlist]
 
-def locateDataFiles(keep, fileType, modsPath, npc, modlist):# DataFiles == nif, dds
+def locateDataFiles(keep, fileType, npc, modlist):# DataFiles == nif, dds
+    '''this returns full paths to each file that deserves to be hidden'''
     paths = [path for mod in modlist for path in \
         mod.joinpath(dataPath(fileType)).rglob(npc+'.'+fileType) if mod.name != keep]
     return len(paths), paths
 
-def hideFiles(keep, modspath, npc, profilePath):
-    a,nifs = locateDataFiles(keep, 'nif', modspath, npc, profilePath)
-    b,ddss = locateDataFiles(keep, 'dds', modspath, npc, profilePath)
+def hideFiles(keep, npc, modlist):
+    a,nifs = locateDataFiles(keep, 'nif', npc, modlist)
+    b,ddss = locateDataFiles(keep, 'dds', npc, modlist)
     messages = []
     error = False
     if a:

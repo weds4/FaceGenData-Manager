@@ -44,48 +44,23 @@ def main():
             if exf.verifyModFilesLocation(modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
                 configInfo[currentSession][modfile] = [modDirs[0].name]
                 exf.saveConfigInfo(configInfo)
-                exf.hideFiles(modDirs[0].name, modspath, npc, profilePath)
+                exf.hideFiles(modDirs[0].name, npc, profileData)
             else:# it doesn't have the nif/dds files
                 modDir = exf.requestModFolder(modspath, npc, profilePath)
                 configInfo[currentSession][modfile] = [modDir]
                 exf.saveConfigInfo(configInfo)
-                exf.hideFiles(modDir, modspath, npc, profilePath)
-            '''
-            if len(modDirs) == 1:# only one folder in mo2\mods has this modfile
-                logger.updateLog(["modDir is "+modDirs[0].name])
-                if exf.verifyModFilesLocation(modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
-                    configInfo[currentSession][modfile] = [modDirs[0]]
-                    exf.saveConfigInfo(configInfo)
-                    exf.hideFiles(modDirs[0], modspath, npc, profilePath)
-                else:# it doesn't have the nif/dds files
-                    modDir = exf.requestModFolder(modspath, npc, profilePath)
-                    configInfo[currentSession][modfile] = [modDir]
-                    exf.saveConfigInfo(configInfo)
-                    exf.hideFiles(modDir, modspath, npc, profilePath)
-            else:# multiple folders in mo2\mods have this modfile
-                modDir = exf.findWinningMod(modDirs, configInfo[currentSession]["profilePath"])
-                if exf.verifyModFilesLocation(modspath+modDir, npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
-                    configInfo[currentSession][modfile] = [modDir]
-                    exf.saveConfigInfo(configInfo) # used to have "if modDir:" in front, removed it cause idthink it applies anymore
-                    logger.updateLog(["modDir is "+modDir])
-                    exf.hideFiles(modDir, modspath, npc, profilePath)
-                else:# it doesn't have the nif/dds files
-                    modDir = exf.requestModFolder(modspath, npc, profilePath)
-                    configInfo[currentSession][modfile] = [modDir]
-                    exf.saveConfigInfo(configInfo)
-                    exf.hideFiles(modDir, modspath, npc, profilePath)
-            '''
+                exf.hideFiles(modDir, npc, profileData)
         else:# config does have an entry for this mod
             modDir = exf.determineKeep(configInfo[currentSession][modfile], modspath, npc)
             if modDir and exf.verifyModFilesLocation(modspath+modDir, npc):
                 logger.updateLog(["modDir is "+modDir])
-                exf.hideFiles(modDir, modspath, npc, profilePath)
+                exf.hideFiles(modDir, npc, profileData)
             else:# it doesn't have the nif/dds files
                 modDir = exf.requestModFolder(modspath, npc, profilePath)
                 configInfo[currentSession][modfile].append(modDir)
                 exf.saveConfigInfo(configInfo)
                 logger.updateLog(["modDir is "+modDir])
-                exf.hideFiles(modDir, modspath, npc, profilePath)
+                exf.hideFiles(modDir, npc, profileData)
         #
         exf.cleanUpOldSessions(currentSession)
         logger.updateLog(["Ending log for: "+currentSession])

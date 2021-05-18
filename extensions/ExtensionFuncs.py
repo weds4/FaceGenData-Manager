@@ -124,16 +124,15 @@ def listActiveMods(modlist):
 
 def locateDataFiles(keep, fileType, npc, modlist):# DataFiles == nif, dds
     '''this returns full Paths to each file that deserves to be hidden'''
-    paths = [path for mod in modlist for path in \
+    return [path for mod in modlist for path in \
         mod.joinpath(dataPath(fileType)).rglob(npc+'.'+fileType) if mod.name != keep]
-    return len(paths), paths
 
 def hideFiles(keep, npc, modlist):
-    a,nifs = locateDataFiles(keep, 'nif', npc, modlist)
-    b,ddss = locateDataFiles(keep, 'dds', npc, modlist)
+    nifs = locateDataFiles(keep, 'nif', npc, modlist)
+    ddss = locateDataFiles(keep, 'dds', npc, modlist)
     messages = []
     error = False
-    if a:
+    if nifs:
         for file in nifs:
             fileString = str(file)
             rename(fileString, fileString+".mohidden")
@@ -141,7 +140,7 @@ def hideFiles(keep, npc, modlist):
     else:
         messages.append("Error: did not hide nif")
         error = True
-    if b:
+    if ddss:
         for file in ddss:
             fileString = str(file)
             rename(fileString, fileString+".mohidden")
@@ -158,7 +157,7 @@ def hideFiles(keep, npc, modlist):
         else: logger.updateLog(messages)
 
 def requestModFolder(modsPath, npc, profilePath):
-    a,nifs = locateDataFiles("", 'nif', modsPath, npc, profilePath)
+    nifs = locateDataFiles("", 'nif', modsPath, npc, profilePath)
     for i in range(1, len(nifs)+1):
         modDir = list(nifs[i-1].parts)[-8]
         print(str(i)+":",modDir)

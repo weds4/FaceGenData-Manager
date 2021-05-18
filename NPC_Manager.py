@@ -39,7 +39,18 @@ def main():
 
         # main script
         if modfile not in configInfo[currentSession]:# if config doesnt have an entry for this mod yet
-            modDirs = exf.locateModDir(modfile, modspath)# time consumer
+            modDirs = exf.locateModDir(modfile, profileData)# time consumer: should be a lot faster now
+            logger.updateLog(["modDir is "+modDirs[0].name])
+            if exf.verifyModFilesLocation(modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
+                configInfo[currentSession][modfile] = [modDirs[0].name]
+                exf.saveConfigInfo(configInfo)
+                exf.hideFiles(modDirs[0].name, modspath, npc, profilePath)
+            else:# it doesn't have the nif/dds files
+                modDir = exf.requestModFolder(modspath, npc, profilePath)
+                configInfo[currentSession][modfile] = [modDir]
+                exf.saveConfigInfo(configInfo)
+                exf.hideFiles(modDir, modspath, npc, profilePath)
+            '''
             if len(modDirs) == 1:# only one folder in mo2\mods has this modfile
                 logger.updateLog(["modDir is "+modDirs[0].name])
                 if exf.verifyModFilesLocation(modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
@@ -63,9 +74,11 @@ def main():
                     configInfo[currentSession][modfile] = [modDir]
                     exf.saveConfigInfo(configInfo)
                     exf.hideFiles(modDir, modspath, npc, profilePath)
+            '''
         else:# config does have an entry for this mod
             modDir = exf.determineKeep(configInfo[currentSession][modfile], modspath, npc)
             if modDir and exf.verifyModFilesLocation(modspath+modDir, npc):
+                logger.updateLog(["modDir is "+modDir])
                 exf.hideFiles(modDir, modspath, npc, profilePath)
             else:# it doesn't have the nif/dds files
                 modDir = exf.requestModFolder(modspath, npc, profilePath)

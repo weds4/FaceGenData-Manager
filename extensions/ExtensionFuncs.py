@@ -80,7 +80,7 @@ def getModFile(sysArgs):
     return modfile
 
 def getModlist(profilePath, modsPath):
-    '''this returns a list (of windows paths) for every active mod in the selected profile'''
+    '''this returns an ordered list (of windows paths) for every active mod in the selected profile, highest in mod order first'''
     with open(profilePath+"\\modlist.txt") as modlisttxt:
         temp = modlisttxt.readlines()
     return [Path(modsPath+line[1:-1]) for line in temp if line[0] == "+"]
@@ -110,22 +110,6 @@ def verifyModFilesLocation(modPath, npc):# modPath is full path to mod folder
     else: check2 = False
     return check1 and check2
 
-def findWinningMod(potentials, profilePath):# search modlist.txt to find the highest-in-priority mod
-    with open(profilePath+'\\modlist.txt') as modlistfile:
-        modlist = modlistfile.readlines()
-    for mod in modlist:
-        if mod[0] == '-':
-            continue
-        elif mod[1:-1] in potentials:
-            return mod[1:-1]
-
-def determineKeep(listOfMods, modsPath, npc):
-    value = False
-    for mod in listOfMods:
-        if verifyModFilesLocation(modsPath+mod, npc):
-            value = mod
-    return value
-
 def listActiveMods(profilePath):
     with open(profilePath+'\\modlist.txt') as modlistfile:
         modlist = modlistfile.readlines()
@@ -150,14 +134,6 @@ def locateDataFiles(keep, fileType, modsPath, npc, profilePath):# DataFiles == n
             if basename.upper() == npc:
                 paths.append(path)
     return len(paths), paths
-
-def requestModFolder(modsPath, npc, profilePath):
-    a,nifs = locateDataFiles("", 'nif', modsPath, npc, profilePath)
-    for i in range(1, len(nifs)+1):
-        modDir = list(nifs[i-1].parts)[-8]
-        print(str(i)+":",modDir)
-    selection = int(input("Please enter the number for the mod you are trying to keep: "))
-    return list(nifs[selection-1].parts)[-8]
 
 def hideFiles(keep, modspath, npc, profilePath):
     a,nifs = locateDataFiles(keep, 'nif', modspath, npc, profilePath)
@@ -188,6 +164,20 @@ def hideFiles(keep, modspath, npc, profilePath):
             raise nifDdsError("nifs and/or dds's were not hidden as expected")
         else: logger.updateLog(messages)
 
+def requestModFolder(modsPath, npc, profilePath):
+    a,nifs = locateDataFiles("", 'nif', modsPath, npc, profilePath)
+    for i in range(1, len(nifs)+1):
+        modDir = list(nifs[i-1].parts)[-8]
+        print(str(i)+":",modDir)
+    selection = int(input("Please enter the number for the mod you are trying to keep: "))
+    return list(nifs[selection-1].parts)[-8]
+
+def determineKeep(listOfMods, modsPath, npc):
+    value = False
+    for mod in listOfMods:
+        if verifyModFilesLocation(modsPath+mod, npc):
+            value = mod
+    return value
 
 def cleanUpOldSessions(sessionID):# if there are more than 10 saved sessions that are two days older than the current session, delete them
     with open("NPC_Manager.json", "r") as configfile:

@@ -1,6 +1,6 @@
 try:
     from pathlib import Path
-    import wx #not included in normal python install
+    import wx# not included in normal python install
     from json import load
     from json import dump
     import extensions.logger as logger
@@ -74,7 +74,7 @@ def getModFile(sysArgs):
             modfile = modfile +' '+ sysArgs[i]
     for j in range(0, len(modfile)):
         if modfile[j]==']':
-            modfile=modfile[j+2:] #+2 becase j is ']' and j+1 is '  '
+            modfile=modfile[j+2:]# +2 becase j is ']' and j+1 is '  '
             break
     return modfile
 
@@ -84,11 +84,11 @@ def getModlist(profilePath, modsPath):
         temp = modlisttxt.readlines()
     return [Path(modsPath+line[1:-1]) for line in temp if line[0] == "+"]
 
-def locateModDir(ESfile, modlist): #ESFile == esp, esl, esm
+def locateModDir(ESfile, modlist):# ESFile == esp, esl, esm
     '''this returns a list (of strings) of all "MO2\\mods" directories that have the ESfile in them'''
     return [str(path.parent) for mod in modlist for path in mod.rglob(ESfile)]
 
-def verifyModFilesLocation(modPath, npc): #modPath is full path to mod folder
+def verifyModFilesLocation(modPath, npc):# modPath is full path to mod folder
     fullPath = Path(modPath+"\\Meshes\\Actors\\Character\\FaceGenData\\FaceGeom")
     check1 = False
     check2 = True
@@ -109,7 +109,7 @@ def verifyModFilesLocation(modPath, npc): #modPath is full path to mod folder
     else: check2 = False
     return check1 and check2
 
-def findWinningMod(potentials, profilePath):#search modlist.txt to find the highest-in-priority mod
+def findWinningMod(potentials, profilePath):# search modlist.txt to find the highest-in-priority mod
     with open(profilePath+'\\modlist.txt') as modlistfile:
         modlist = modlistfile.readlines()
     for mod in modlist:
@@ -134,9 +134,9 @@ def listActiveMods(profilePath):
             activeMods.append(mod[1:-1])
     return activeMods
 
-def locateDataFiles(keep, fileType, modsPath, npc, profilePath): #DataFiles == nif, dds
+def locateDataFiles(keep, fileType, modsPath, npc, profilePath):# DataFiles == nif, dds
     paths = []
-    modslist = listActiveMods(profilePath) #used to be os.listdir "listdir(modsPath)"
+    modslist = listActiveMods(profilePath)# used to be os.listdir "listdir(modsPath)"
     for mod in modslist:
         if mod == keep:
             continue
@@ -198,7 +198,7 @@ def cleanUpOldSessions(sessionID):# if there are more than 10 saved sessions tha
         currentTime = int(float(sessionID)/3600/24/365)
         i = 0
         while i < keyCount-10:# hopefully this loops over the oldest n configs where n=keycount-10
-            #ie keep at least ten sessions and all sessions that have occurred in the last 2 days
+            # ie keep at least ten sessions and all sessions that have occurred in the last 2 days
             item = configKeys[i]
             try:
                 time_days = int(float(item)/3600/24/365)

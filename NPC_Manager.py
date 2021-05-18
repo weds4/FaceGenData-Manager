@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#starting refactor 5/7/2021
+# starting refactor 5/7/2021
 try:
     from os import system
     import sys
@@ -11,7 +11,7 @@ except ModuleNotFoundError as e:
 
 def main():
     try:
-        #initialization steps
+        # initialization steps
         system("")# summmon system to get colored text!
         currentSession = exf.getSessionInfo()
         configInfo = exf.loadConfigInfo()
@@ -37,7 +37,7 @@ def main():
         profileData = exf.getModlist(profilePath, modspath)# a list of pathlib Paths to all active mods
         logger.updateLog(["esp is "+modfile, "npc is "+npc, "mods path is "+modspath], "active mods count is "+str(len(profileData)))
 
-        #main script
+        # main script
         if modfile not in configInfo[currentSession]:# if config doesnt have an entry for this mod yet
             modDirs = exf.locateModDir(modfile, modspath)# time consumer
             if len(modDirs) == 1:# only one folder in mo2\mods has this modfile

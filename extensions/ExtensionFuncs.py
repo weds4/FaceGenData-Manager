@@ -9,11 +9,17 @@ try:
 except ModuleNotFoundError as e:
     input(e)
 
-class MO2Error(LookupError):
+class MO2Error(Exception):
     '''MO2 profile not specified'''
 
-class nifDdsError(LookupError):
-    '''nif/dds missing'''
+class nifDdsError(Exception):
+    '''called for nif or dds files not being found'''
+
+def dataPath(datatype):
+    if datatype == 'nif':
+        return "Meshes\\Actors\\Character\\FaceGenData\\FaceGeom"
+    elif datatype == 'dds':
+        return "textures\\Actors\\Character\\FaceGenData\\FaceTint"
 
 def getSessionInfo():
     session = Path("SSEEdit_log.txt").stat().st_mtime
@@ -110,29 +116,12 @@ def verifyModFilesLocation(modPath, npc):# modPath is full path to mod folder
     else: check2 = False
     return check1 and check2
 
-def listActiveMods(profilePath):
-    with open(profilePath+'\\modlist.txt') as modlistfile:
-        modlist = modlistfile.readlines()
-    activeMods = []
-    for mod in modlist:
-        if mod[0] == '+':
-            activeMods.append(mod[1:-1])
-    return activeMods
+def listActiveMods(modlist):
+    return [path.name for path in modlist]
 
-def locateDataFiles(keep, fileType, modsPath, npc, profilePath):# DataFiles == nif, dds
-    paths = []
-    modslist = listActiveMods(profilePath)# used to be os.listdir "listdir(modsPath)"
-    for mod in modslist:
-        if mod == keep:
-            continue
-        if fileType == 'nif':
-            fullpath = modsPath+mod+"\\Meshes\\Actors\\Character\\FaceGenData\\FaceGeom"
-        else:
-            fullpath = modsPath+mod+"\\textures\\actors\\character\\facegendata\\facetint"
-        for path in Path(fullpath).rglob('*.'+fileType):
-            basename = str(path)[-12:-4]
-            if basename.upper() == npc:
-                paths.append(path)
+def locateDataFiles(keep, fileType, modsPath, npc, modlist):# DataFiles == nif, dds
+    paths = [path for mod in modlist for path in \
+        mod.joinpath(dataPath(fileType)).rglob(npc+'.'+fileType) if mod.name != keep]
     return len(paths), paths
 
 def hideFiles(keep, modspath, npc, profilePath):

@@ -45,6 +45,7 @@ def isNewSession(currentSessionID, config):
     else: return False
 
 def requestProfilePath(title, likelyPath):
+    '''create the wx prompt to get the profile path'''
     app = wx.App(None)
     style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST
     dialog = wx.DirDialog(None, title, likelyPath, style=style)
@@ -71,6 +72,7 @@ def getNPC(sysArgs):
     return '00'+str(sysArgs[-1])[8:-1]
 
 def getModFile(sysArgs):
+    '''inspect sysArgv for the mod name'''
     modfile = ''
     for i in range(2, len(sysArgs)):
         if sysArgs[i][0] == '\\':
@@ -86,7 +88,7 @@ def getModFile(sysArgs):
     return modfile
 
 def getModlist(profilePath, modsPath):
-    '''this returns an ordered list (of windows paths) for every active mod in the selected profile, highest in mod order first'''
+    '''this returns an ordered list (of windows Paths) for every active mod in the selected profile, highest in mod order first'''
     with open(profilePath+"\\modlist.txt") as modlisttxt:
         temp = modlisttxt.readlines()
     return [Path(modsPath+line[1:-1]) for line in temp if line[0] == "+"]
@@ -117,11 +119,11 @@ def verifyModFilesLocation(modPath, npc):# modPath is full path to mod folder
     return check1 and check2
 
 def listActiveMods(modlist):
-    '''this returns a list of just the folder name for all the full paths in modlist'''
+    '''this returns a list of just the folder name for all the full Paths in modlist'''
     return [path.name for path in modlist]
 
 def locateDataFiles(keep, fileType, npc, modlist):# DataFiles == nif, dds
-    '''this returns full paths to each file that deserves to be hidden'''
+    '''this returns full Paths to each file that deserves to be hidden'''
     paths = [path for mod in modlist for path in \
         mod.joinpath(dataPath(fileType)).rglob(npc+'.'+fileType) if mod.name != keep]
     return len(paths), paths

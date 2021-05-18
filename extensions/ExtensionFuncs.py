@@ -118,16 +118,21 @@ def verifyModFilesLocation(modPath, npc):# modPath is full path to mod folder
     else: check2 = False
     return check1 and check2
 
-def listActiveMods(modlist):
+def listActiveMods(modlist):# possibly unused
     '''this returns a list of just the folder name for all the full Paths in modlist'''
     return [path.name for path in modlist]
 
 def locateDataFiles(keep, fileType, npc, modlist):# DataFiles == nif, dds
-    '''this returns full Paths to each file that deserves to be hidden'''
+    '''this returns full Paths to each file that deserves to be hidden.
+A side effect of this function is that the file names are all upper-case,
+so os.rename will rename the file with all upper-case letters, even if the
+original file had lower or mixed-case letters
+    '''
     return [path for mod in modlist for path in \
         mod.joinpath(dataPath(fileType)).rglob(npc+'.'+fileType) if mod.name != keep]
 
 def hideFiles(keep, npc, modlist):
+    '''this does the actual hiding of files using os.rename'''
     nifs = locateDataFiles(keep, 'nif', npc, modlist)
     ddss = locateDataFiles(keep, 'dds', npc, modlist)
     messages = []

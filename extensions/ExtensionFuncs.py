@@ -95,18 +95,17 @@ def getModlist(profilePath, modsPath):
 
 def locateModDir(ESfile, modlist):# ESFile == esp, esl, esm
     '''this returns a list (of strings) of all "MO2\\mods" directories that have the ESfile in them'''
-    return [path.parent.name for mod in modlist for path in mod.rglob(ESfile)]
+    return [path.parent for mod in modlist for path in mod.rglob(ESfile)]
 
 def verifyModFilesLocation(modlist, npc, keep):
     '''returns True or None if a nif and dds are found. Not Fool-Proof'''
-    check = [path for mod in modlist
-             for path in mod.rglob(npc+'.???') if mod.name == keep]# expects keep is string
+    check = [path for path in keep.rglob(npc+'.???')]# expects keep is Path!
     if check:
         length = len(check)
         if length == 2:# good
             if check[0].parents[1].name.lower() == 'facegeom' and check[1].parents[1].name.lower() == 'facetint':# better!
                 if check[0].name.upper() == f"{npc}.NIF" and check[1].name.upper() == f"{npc}.DDS":# best
-                    pass
+                    return True
                 else: pass
             else:
                 pass
@@ -171,20 +170,21 @@ def hideFiles(modlist, npc, keep):
         else: logger.updateLog(messages)
 
 def requestModFolder(modlist, npc):
+    '''returns path to selected mod folder'''
     modFiles = locateDataFiles(modlist, npc, "")
-    names = list(dict.fromkeys([file.parents[6].name for mod in modFiles for n, file in enumerate(mod) if file not in mod[:n]]))
+    paths = list(dict.fromkeys([file.parents[6] for mod in modFiles for n, file in enumerate(mod) if file not in mod[:n]]))
     print('')
-    for i, name in enumerate(names):
-        print(str(i+1)+":",name)
+    for i, name in enumerate(paths):
+        print(str(i+1)+":",name.name)
     selection = int(input("Please enter the number for the mod you are trying to keep: "))
-    return names[selection-1]
+    return paths[selection-1]
 
 def determineKeep(npc, modspath, listOfMods):# listOfMods is a list of string mod folder names
     for mod in [Path(modspath+modFolder) for modFolder in listOfMods]:
         check = [path.name.upper() for path in mod.rglob(npc+'.???')]
         if check and check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
             print(f'type of mod is {type(mod)}')
-            return mod.name
+            return mod
 
 def cleanUpOldSessions(sessionID):# if there are more than 10 saved sessions that are two days older than the current session, delete them
     with open("NPC_Manager.json", "r") as configfile:

@@ -40,28 +40,28 @@ def main():
 
         # main script
         if modfile not in configInfo[currentSession]:# if config doesnt have an entry for this mod yet
-            modDirs = exf.locateModDir(modfile, profileData)# members of modDirs are strings
-            logger.updateLog(["modDir is "+modDirs[0]])
+            modDirs = exf.locateModDir(modfile, profileData)# members of modDirs are Paths
+            logger.updateLog(["modDir is "+modDirs[0].name])
             if exf.verifyModFilesLocation(profileData, npc, modDirs[0]):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
-                configInfo[currentSession][modfile] = [modDirs[0]] #must be a list to handle bijin scenario, modDirs[0] is a string
+                configInfo[currentSession][modfile] = [modDirs[0].name] #must be a list to handle bijin scenario, modDirs[0] is a Path!
                 exf.saveConfigInfo(configInfo)
-                exf.hideFiles(profileData, npc, modDirs[0])
+                exf.hideFiles(profileData, npc, modDirs[0].name)
             else:# it doesn't have the nif/dds files
                 modDir = exf.requestModFolder(profileData, npc)
                 configInfo[currentSession][modfile] = [modDir]
                 exf.saveConfigInfo(configInfo)
                 exf.hideFiles(profileData, npc, modDir)
         else:# config does have an entry for this mod
-            modDir = exf.determineKeep(npc, modspath, configInfo[currentSession][modfile])# modDir type is string
+            modDir = exf.determineKeep(npc, modspath, configInfo[currentSession][modfile])# modDir type is Path!
             if modDir and exf.verifyModFilesLocation(profileData, npc, modDir):
-                logger.updateLog(["modDir is "+modDir])
-                exf.hideFiles(profileData, npc, modDir)
+                logger.updateLog(["modDir is "+modDir.name])
+                exf.hideFiles(profileData, npc, modDir.name)
             else:# it doesn't have the nif/dds files
-                modDir = exf.requestModFolder(profileData, npc)
-                configInfo[currentSession][modfile].append(modDir)
+                modDir = exf.requestModFolder(profileData, npc)# modDir is Path!
+                configInfo[currentSession][modfile].append(modDir.name)
                 exf.saveConfigInfo(configInfo)
-                logger.updateLog(["modDir is "+modDir])
-                exf.hideFiles(profileData, npc, modDir)
+                logger.updateLog(["modDir is "+modDir.name])
+                exf.hideFiles(profileData, npc, modDir.name)
         #
         exf.cleanUpOldSessions(currentSession)
         logger.updateLog(["Ending log for: "+currentSession])

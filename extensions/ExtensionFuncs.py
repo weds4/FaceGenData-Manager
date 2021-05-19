@@ -99,8 +99,8 @@ def locateModDir(ESfile, modlist):# ESFile == esp, esl, esm
 
 def verifyModFilesLocation(modlist, npc, keep):
     '''returns True or None if a nif and dds are found. Not Fool-Proof'''
-    check = [path.name.upper() for mod in modlist \
-        for path in mod.rglob(npc+'.???') if mod.name == keep]# expects keep is string
+    check = [path.name.upper() for mod in modlist
+             for path in mod.rglob(npc+'.???') if mod.name == keep]# expects keep is string
     if check and check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
         return True
 
@@ -110,9 +110,9 @@ def listActiveMods(modlist):# possibly unused
 
 def locateDataFiles(modlist, npc, keep):# DataFiles == nif, dds
     '''this returns full Paths to each file that deserves to be hidden'''
-    return [pathsList for pathsList in \
-        [[path for path in mod.rglob(npc+'.???')]\
-        for mod in modlist if mod.name != keep] if pathsList]# expects keep is string
+    return [pathsList for pathsList in
+            [[path for path in mod.rglob(npc+'.???')]
+             for mod in modlist if mod.name != keep] if pathsList]# expects keep is string
 
 def hideFiles(modlist, npc, keep):
     '''this does the actual hiding of files using os.rename'''
@@ -159,6 +159,7 @@ def hideFiles(modlist, npc, keep):
 def requestModFolder(modlist, npc):
     modFiles = locateDataFiles(modlist, npc, "")
     names = list(dict.fromkeys([file.parents[6].name for mod in modFiles for n, file in enumerate(mod) if file not in mod[:n]]))
+    print('')
     for i, name in enumerate(names):
         print(str(i+1)+":",name)
     selection = int(input("Please enter the number for the mod you are trying to keep: "))

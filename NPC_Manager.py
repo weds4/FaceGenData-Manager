@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # starting refactor 5/7/2021
 try:
-    from traceback import print_tb
+    #from traceback import print_tb
     from os import system
     import sys
     from pathlib import PurePath
@@ -36,7 +36,7 @@ def main():
         modfile = exf.getModFile(sys.argv)
         modspath = configInfo["MO2Location"] + "\\mods\\"
         profileData = exf.getModlist(profilePath, modspath)# a list of pathlib Paths to all active mods
-        logger.updateLog(["esp is "+modfile, "npc is "+npc, "mods path is "+modspath, "active mods count is "+str(len(profileData))])
+        logger.updateLog(["mods path is "+modspath, "active mods count is "+str(len(profileData)), "npc is "+npc, "esp is "+modfile])
 
         # main script
         if modfile not in configInfo[currentSession]:# if config doesnt have an entry for this mod yet
@@ -68,7 +68,7 @@ def main():
     #
     except Exception as e:
         exception = sys.exc_info()[0]
-        print_tb(sys.exc_info()[2])
+        #print_tb(sys.exc_info()[2])
         logger.updateLog([f"Error: {exception}, {e}"], True)
         try:
             currentSession = exf.getSessionInfo()
@@ -79,4 +79,4 @@ def main():
 #
 if __name__ == '__main__':
     main()
-    input('end of __main__')
+    #input('end of __main__')

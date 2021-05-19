@@ -99,8 +99,22 @@ def locateModDir(ESfile, modlist):# ESFile == esp, esl, esm
 
 def verifyModFilesLocation(modlist, npc, keep):
     '''returns True or None if a nif and dds are found. Not Fool-Proof'''
-    check = [path.name.upper() for mod in modlist
+    check = [path for mod in modlist
              for path in mod.rglob(npc+'.???') if mod.name == keep]# expects keep is string
+    if check:
+        length = len(check)
+        if length == 2:# good
+            if check[0].parents[1].name.lower() == 'facegeom' and check[1].parents[1].name.lower() == 'facetint':# better!
+                if check[0].name.upper() == f"{npc}.NIF" and check[1].name.upper() == f"{npc}.DDS":# best
+                    pass
+                else: pass
+            else:
+                pass
+        elif length == 1:
+            pass
+        else:
+            pass
+
     if check and check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
         return True
 

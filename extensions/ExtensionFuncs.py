@@ -97,7 +97,7 @@ def locateModDir(ESfile, modlist):# ESFile == esp, esl, esm
     '''this returns a list (of strings) of all "MO2\\mods" directories that have the ESfile in them'''
     return [str(path.parent) for mod in modlist for path in mod.rglob(ESfile)]
 
-def verifyModFilesLocation(npc, modlist, keep):# modPath is full path to mod folder
+def verifyModFilesLocation(modlist, npc, keep):# modPath is full path to mod folder
     check = [path.name.upper() for mod in modlist \
              for path in mod.rglob(npc+'.???') if mod.name == keep]
     if check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
@@ -108,15 +108,15 @@ def listActiveMods(modlist):# possibly unused
     '''this returns a list of just the folder name for all the full Paths in modlist'''
     return [path.name for path in modlist]
 
-def locateDataFiles(keep, npc, modlist):# DataFiles == nif, dds
+def locateDataFiles(modlist, npc, keep):# DataFiles == nif, dds
     '''this returns full Paths to each file that deserves to be hidden'''
     return [pathsList for pathsList in \
         [[path for path in mod.rglob(npc+'.???')]\
         for mod in modlist if mod.name != keep] if pathsList]
 
-def hideFiles(keep, npc, modlist):
+def hideFiles(modlist, npc, keep):
     '''this does the actual hiding of files using os.rename'''
-    dataFiles = locateDataFiles(keep, npc, modlist)
+    dataFiles = locateDataFiles(modlist, npc, keep)
     messages = []
     error = False
     if dataFiles:
@@ -156,8 +156,8 @@ def hideFiles(keep, npc, modlist):
             raise nifDdsError("nifs and/or dds's were not hidden as expected")
         else: logger.updateLog(messages)
 
-def requestModFolder(npc, modlist):
-    modFiles = locateDataFiles("", npc, modlist)
+def requestModFolder(modlist, npc):
+    modFiles = locateDataFiles(modlist, npc, "")
     names = list(dict.fromkeys([file.parents[6].name for mod in modFiles for n, file in enumerate(mod) if file not in mod[:n]]))
     for i, name in enumerate(names):
         print(str(i+1)+":",name)

@@ -41,7 +41,7 @@ def main():
         if modfile not in configInfo[currentSession]:# if config doesnt have an entry for this mod yet
             modDirs = exf.locateModDir(modfile, profileData)# time consumer: should be a lot faster now
             logger.updateLog(["modDir is "+modDirs[0].name])
-            if exf.verifyModFilesLocation(modDirs[0], npc):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
+            if exf.verifyModFilesLocation(profileData, npc, modDirs[0]):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
                 configInfo[currentSession][modfile] = [modDirs[0].name] #must be in list to handle bijin scenario
                 exf.saveConfigInfo(configInfo)
                 exf.hideFiles(modDirs[0].name, npc, profileData)
@@ -52,7 +52,7 @@ def main():
                 exf.hideFiles(modDir, npc, profileData)
         else:# config does have an entry for this mod
             modDir = exf.determineKeep(configInfo[currentSession][modfile], modspath, npc)
-            if modDir and exf.verifyModFilesLocation(modspath+modDir, npc):
+            if modDir and exf.verifyModFilesLocation(profileData, npc, modDir):
                 logger.updateLog(["modDir is "+modDir])
                 exf.hideFiles(modDir, npc, profileData)
             else:# it doesn't have the nif/dds files

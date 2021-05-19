@@ -25,7 +25,6 @@ imports:
  &#8226;   <a href="#codecs">codecs</a>
  &#8226;   <a href="#collections">collections</a>
  &#8226;   <a href="#collections.abc">collections.abc</a>
- &#8226;   <a href="#configstorage">configstorage</a>
  &#8226;   <a href="#copyreg">copyreg</a>
  &#8226;   <a href="#encodings">encodings</a>
  &#8226;   <a href="#encodings.aliases">encodings.aliases</a>
@@ -151,13 +150,14 @@ imports:
  &#8226;   <a href="#encodings.uu_codec">encodings.uu_codec</a>
  &#8226;   <a href="#encodings.zlib_codec">encodings.zlib_codec</a>
  &#8226;   <a href="#enum">enum</a>
+ &#8226;   <a href="#extensions.ExtensionFuncs">extensions.ExtensionFuncs</a>
+ &#8226;   <a href="#extensions.logger">extensions.logger</a>
  &#8226;   <a href="#functools">functools</a>
  &#8226;   <a href="#heapq">heapq</a>
  &#8226;   <a href="#io">io</a>
  &#8226;   <a href="#keyword">keyword</a>
  &#8226;   <a href="#linecache">linecache</a>
  &#8226;   <a href="#locale">locale</a>
- &#8226;   <a href="#logger">logger</a>
  &#8226;   <a href="#operator">operator</a>
  &#8226;   <a href="#os">os</a>
  &#8226;   <a href="#pathlib">pathlib</a>
@@ -172,7 +172,6 @@ imports:
  &#8226;   <a href="#types">types</a>
  &#8226;   <a href="#warnings">warnings</a>
  &#8226;   <a href="#weakref">weakref</a>
- &#8226;   <a href="#wx">wx</a>
 
   </div>
 
@@ -219,7 +218,7 @@ imported by:
   <a target="code" href="" type="text/plain"><tt>'org.python'</tt></a>
 <span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
-    <a href="#pickle">pickle</a>
+    <a href="#copy">copy</a>
  &#8226;   <a href="#xml.sax">xml.sax</a>
 
   </div>
@@ -2711,23 +2710,6 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="configstorage"></a>
-  <a target="code" href="///E:/GitHub/NPC-FaceData-Manager/configstorage.py" type="text/plain"><tt>configstorage</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#json">json</a>
- &#8226;   <a href="#pathlib">pathlib</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#NPC_Manager.py">NPC_Manager.py</a>
-
-  </div>
-
-</div>
-
-<div class="node">
   <a name="contextlib"></a>
   <a target="code" href="///E:/Python38/lib/contextlib.py" type="text/plain"><tt>contextlib</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -2785,8 +2767,8 @@ imported by:
   <a target="code" href="///E:/Python38/lib/copy.py" type="text/plain"><tt>copy</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#copyreg">copyreg</a>
- &#8226;   <a href="#org">org</a>
+    <a href="#'org.python'">'org.python'</a>
+ &#8226;   <a href="#copyreg">copyreg</a>
  &#8226;   <a href="#types">types</a>
  &#8226;   <a href="#weakref">weakref</a>
 
@@ -6080,6 +6062,57 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="extensions"></a>
+  <a target="code" href="-" type="text/plain"><tt>extensions</tt></a>
+<span class="moduletype">NamespacePackage</span>  <div class="import">
+imported by:
+    <a href="#extensions.ExtensionFuncs">extensions.ExtensionFuncs</a>
+ &#8226;   <a href="#extensions.logger">extensions.logger</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="extensions.ExtensionFuncs"></a>
+  <a target="code" href="///E:/GitHub/NPC-FaceData-Manager/extensions/ExtensionFuncs.py" type="text/plain"><tt>extensions.ExtensionFuncs</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#extensions">extensions</a>
+ &#8226;   <a href="#extensions.logger">extensions.logger</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#pathlib">pathlib</a>
+ &#8226;   <a href="#wx">wx</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#NPC_Manager.py">NPC_Manager.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="extensions.logger"></a>
+  <a target="code" href="///E:/GitHub/NPC-FaceData-Manager/extensions/logger.py" type="text/plain"><tt>extensions.logger</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#extensions">extensions</a>
+ &#8226;   <a href="#time">time</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#NPC_Manager.py">NPC_Manager.py</a>
+ &#8226;   <a href="#extensions.ExtensionFuncs">extensions.ExtensionFuncs</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="fnmatch"></a>
   <a target="code" href="///E:/Python38/lib/fnmatch.py" type="text/plain"><tt>fnmatch</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -6577,7 +6610,7 @@ imports:
  &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib._bootstrap">importlib._bootstrap</a>
  &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
- &#8226;   <a href="#importlib.machinery">importlib.machinery</a>
+ &#8226;   <a href="#importlib.abc">importlib.abc</a>
  &#8226;   <a href="#sys">sys</a>
  &#8226;   <a href="#types">types</a>
  &#8226;   <a href="#warnings">warnings</a>
@@ -6660,7 +6693,8 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#importlib.metadata">importlib.metadata</a>
+    <a href="#importlib">importlib</a>
+ &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
  &#8226;   <a href="#importlib.util">importlib.util</a>
  &#8226;   <a href="#zipimport">zipimport</a>
 
@@ -6681,8 +6715,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#importlib">importlib</a>
- &#8226;   <a href="#importlib.abc">importlib.abc</a>
+    <a href="#importlib.abc">importlib.abc</a>
  &#8226;   <a href="#inspect">inspect</a>
  &#8226;   <a href="#pkgutil">pkgutil</a>
  &#8226;   <a href="#py_compile">py_compile</a>
@@ -6929,7 +6962,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#configstorage">configstorage</a>
+    <a href="#extensions.ExtensionFuncs">extensions.ExtensionFuncs</a>
  &#8226;   <a href="#json.decoder">json.decoder</a>
  &#8226;   <a href="#json.encoder">json.encoder</a>
  &#8226;   <a href="#json.scanner">json.scanner</a>
@@ -7061,22 +7094,6 @@ imported by:
  &#8226;   <a href="#calendar">calendar</a>
  &#8226;   <a href="#gettext">gettext</a>
  &#8226;   <a href="#wx.core">wx.core</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="logger"></a>
-  <a target="code" href="///E:/GitHub/NPC-FaceData-Manager/logger.py" type="text/plain"><tt>logger</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#time">time</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#NPC_Manager.py">NPC_Manager.py</a>
 
   </div>
 
@@ -8183,7 +8200,7 @@ imported by:
   <a target="code" href="" type="text/plain"><tt>org</tt></a>
 <span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
-    <a href="#copy">copy</a>
+    <a href="#pickle">pickle</a>
 
   </div>
 
@@ -8227,6 +8244,7 @@ imported by:
  &#8226;   <a href="#ctypes">ctypes</a>
  &#8226;   <a href="#doctest">doctest</a>
  &#8226;   <a href="#email.utils">email.utils</a>
+ &#8226;   <a href="#extensions.ExtensionFuncs">extensions.ExtensionFuncs</a>
  &#8226;   <a href="#fnmatch">fnmatch</a>
  &#8226;   <a href="#genericpath">genericpath</a>
  &#8226;   <a href="#getopt">getopt</a>
@@ -8328,7 +8346,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#NPC_Manager.py">NPC_Manager.py</a>
- &#8226;   <a href="#configstorage">configstorage</a>
+ &#8226;   <a href="#extensions.ExtensionFuncs">extensions.ExtensionFuncs</a>
  &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
  &#8226;   <a href="#zipimport">zipimport</a>
 
@@ -8378,8 +8396,7 @@ imported by:
   <a target="code" href="///E:/Python38/lib/pickle.py" type="text/plain"><tt>pickle</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#'org.python'">'org.python'</a>
- &#8226;   <a href="#_compat_pickle">_compat_pickle</a>
+    <a href="#_compat_pickle">_compat_pickle</a>
  &#8226;   <a href="#_pickle">_pickle</a>
  &#8226;   <a href="#codecs">codecs</a>
  &#8226;   <a href="#copyreg">copyreg</a>
@@ -8387,6 +8404,7 @@ imports:
  &#8226;   <a href="#functools">functools</a>
  &#8226;   <a href="#io">io</a>
  &#8226;   <a href="#itertools">itertools</a>
+ &#8226;   <a href="#org">org</a>
  &#8226;   <a href="#pprint">pprint</a>
  &#8226;   <a href="#re">re</a>
  &#8226;   <a href="#struct">struct</a>
@@ -9699,11 +9717,11 @@ imported by:
  &#8226;   <a href="#email._parseaddr">email._parseaddr</a>
  &#8226;   <a href="#email.generator">email.generator</a>
  &#8226;   <a href="#email.utils">email.utils</a>
+ &#8226;   <a href="#extensions.logger">extensions.logger</a>
  &#8226;   <a href="#gc">gc</a>
  &#8226;   <a href="#gzip">gzip</a>
  &#8226;   <a href="#http.cookiejar">http.cookiejar</a>
  &#8226;   <a href="#http.server">http.server</a>
- &#8226;   <a href="#logger">logger</a>
  &#8226;   <a href="#logging">logging</a>
  &#8226;   <a href="#multiprocessing.connection">multiprocessing.connection</a>
  &#8226;   <a href="#multiprocessing.managers">multiprocessing.managers</a>
@@ -10512,7 +10530,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#NPC_Manager.py">NPC_Manager.py</a>
+    <a href="#extensions.ExtensionFuncs">extensions.ExtensionFuncs</a>
  &#8226;   <a href="#wx.__version__">wx.__version__</a>
  &#8226;   <a href="#wx._adv">wx._adv</a>
  &#8226;   <a href="#wx._core">wx._core</a>

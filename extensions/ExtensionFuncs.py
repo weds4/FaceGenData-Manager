@@ -95,12 +95,13 @@ def getModlist(profilePath, modsPath):
 
 def locateModDir(ESfile, modlist):# ESFile == esp, esl, esm
     '''this returns a list (of strings) of all "MO2\\mods" directories that have the ESfile in them'''
-    return [str(path.parent) for mod in modlist for path in mod.rglob(ESfile)]
+    return [path.parent.name for mod in modlist for path in mod.rglob(ESfile)]
 
-def verifyModFilesLocation(modlist, npc, keep):# modPath is full path to mod folder
+def verifyModFilesLocation(modlist, npc, keep):
+    '''returns True or None if a nif and dds are found. Not Fool-Proof'''
     check = [path.name.upper() for mod in modlist \
-             for path in mod.rglob(npc+'.???') if mod.name == keep]
-    if check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
+        for path in mod.rglob(npc+'.???') if mod.name == keep]# expects keep is string
+    if check and check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
         return True
 
 def listActiveMods(modlist):# possibly unused
@@ -111,11 +112,11 @@ def locateDataFiles(modlist, npc, keep):# DataFiles == nif, dds
     '''this returns full Paths to each file that deserves to be hidden'''
     return [pathsList for pathsList in \
         [[path for path in mod.rglob(npc+'.???')]\
-        for mod in modlist if mod.name != keep] if pathsList]
+        for mod in modlist if mod.name != keep] if pathsList]# expects keep is string
 
 def hideFiles(modlist, npc, keep):
     '''this does the actual hiding of files using os.rename'''
-    dataFiles = locateDataFiles(modlist, npc, keep)
+    dataFiles = locateDataFiles(modlist, npc, keep)# expects keep is string
     messages = []
     error = False
     if dataFiles:
@@ -127,7 +128,7 @@ def hideFiles(modlist, npc, keep):
                 if modFiles[0].suffix.lower() == '.nif' and modFiles[1].suffix.lower() == '.dds':
                     for file in modFiles:
                         fileString = str(file)
-                        #rename(fileString, fileString+".mohidden")
+                        rename(fileString, fileString+".mohidden")
                     messages.append(f"successfully hid nif and dds for {npc} from \"{modname}\"")
 
                 else:
@@ -167,7 +168,8 @@ def determineKeep(npc, modspath, listOfMods):# listOfMods is a list of string mo
     for mod in [Path(modspath+modFolder) for modFolder in listOfMods]:
         check = [path.name.upper() for path in mod.rglob(npc+'.???')]
         if check and check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
-            return mod
+            print(f'type of mod is {type(mod)}')
+            return mod.name
 
 def cleanUpOldSessions(sessionID):# if there are more than 10 saved sessions that are two days older than the current session, delete them
     with open("NPC_Manager.json", "r") as configfile:

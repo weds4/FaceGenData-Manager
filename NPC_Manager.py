@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # starting refactor 5/7/2021
 try:
+    from traceback import print_tb
     from os import system
     import sys
     from pathlib import PurePath
@@ -35,38 +36,39 @@ def main():
         modfile = exf.getModFile(sys.argv)
         modspath = configInfo["MO2Location"] + "\\mods\\"
         profileData = exf.getModlist(profilePath, modspath)# a list of pathlib Paths to all active mods
-        logger.updateLog(["esp is "+modfile, "npc is "+npc, "mods path is "+modspath], "active mods count is "+str(len(profileData)))
+        logger.updateLog(["esp is "+modfile, "npc is "+npc, "mods path is "+modspath, "active mods count is "+str(len(profileData))])
 
         # main script
         if modfile not in configInfo[currentSession]:# if config doesnt have an entry for this mod yet
-            modDirs = exf.locateModDir(modfile, profileData)# time consumer: should be a lot faster now
-            logger.updateLog(["modDir is "+modDirs[0].name])
+            modDirs = exf.locateModDir(modfile, profileData)# members of modDirs are strings
+            logger.updateLog(["modDir is "+modDirs[0]])
             if exf.verifyModFilesLocation(profileData, npc, modDirs[0]):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
-                configInfo[currentSession][modfile] = [modDirs[0].name] #must be in list to handle bijin scenario
+                configInfo[currentSession][modfile] = [modDirs[0]] #must be a list to handle bijin scenario, modDirs[0] is a string
                 exf.saveConfigInfo(configInfo)
-                exf.hideFiles(modDirs[0].name, npc, profileData)
+                exf.hideFiles(profileData, npc, modDirs[0])
             else:# it doesn't have the nif/dds files
                 modDir = exf.requestModFolder(profileData, npc)
                 configInfo[currentSession][modfile] = [modDir]
                 exf.saveConfigInfo(configInfo)
-                exf.hideFiles(modDir, npc, profileData)
+                exf.hideFiles(profileData, npc, modDir)
         else:# config does have an entry for this mod
-            modDir = exf.determineKeep(npc, modspath, configInfo[currentSession][modfile])
+            modDir = exf.determineKeep(npc, modspath, configInfo[currentSession][modfile])# modDir type is string
             if modDir and exf.verifyModFilesLocation(profileData, npc, modDir):
                 logger.updateLog(["modDir is "+modDir])
-                exf.hideFiles(modDir, npc, profileData)
+                exf.hideFiles(profileData, npc, modDir)
             else:# it doesn't have the nif/dds files
                 modDir = exf.requestModFolder(profileData, npc)
                 configInfo[currentSession][modfile].append(modDir)
                 exf.saveConfigInfo(configInfo)
                 logger.updateLog(["modDir is "+modDir])
-                exf.hideFiles(modDir, npc, profileData)
+                exf.hideFiles(profileData, npc, modDir)
         #
         exf.cleanUpOldSessions(currentSession)
         logger.updateLog(["Ending log for: "+currentSession])
     #
     except Exception as e:
         exception = sys.exc_info()[0]
+        print_tb(sys.exc_info()[2])
         logger.updateLog([f"Error: {exception}, {e}"], True)
         try:
             currentSession = exf.getSessionInfo()

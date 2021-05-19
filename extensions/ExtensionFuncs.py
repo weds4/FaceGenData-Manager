@@ -102,7 +102,6 @@ def verifyModFilesLocation(modlist, npc, keep):# modPath is full path to mod fol
              for path in mod.rglob(npc+'.???') if mod.name == keep]
     if check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
         return True
-    else: return False
 
 def listActiveMods(modlist):# possibly unused
     '''this returns a list of just the folder name for all the full Paths in modlist'''
@@ -164,12 +163,11 @@ def requestModFolder(modlist, npc):
     selection = int(input("Please enter the number for the mod you are trying to keep: "))
     return names[selection-1]
 
-def determineKeep(listOfMods, modsPath, npc):
-    value = False
-    for mod in listOfMods:
-        if verifyModFilesLocation(modsPath+mod, npc):
-            value = mod
-    return value
+def determineKeep(npc, modspath, listOfMods):# listOfMods is a list of string mod folder names
+    for mod in [Path(modspath+modFolder) for modFolder in listOfMods]:
+        check = [path.name.upper() for path in mod.rglob(npc+'.???')]
+        if check and check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
+            return mod
 
 def cleanUpOldSessions(sessionID):# if there are more than 10 saved sessions that are two days older than the current session, delete them
     with open("NPC_Manager.json", "r") as configfile:

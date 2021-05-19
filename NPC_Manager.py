@@ -46,17 +46,17 @@ def main():
                 exf.saveConfigInfo(configInfo)
                 exf.hideFiles(modDirs[0].name, npc, profileData)
             else:# it doesn't have the nif/dds files
-                modDir = exf.requestModFolder(modspath, npc, profilePath)
+                modDir = exf.requestModFolder(profileData, npc)
                 configInfo[currentSession][modfile] = [modDir]
                 exf.saveConfigInfo(configInfo)
                 exf.hideFiles(modDir, npc, profileData)
         else:# config does have an entry for this mod
-            modDir = exf.determineKeep(configInfo[currentSession][modfile], modspath, npc)
+            modDir = exf.determineKeep(npc, modspath, configInfo[currentSession][modfile])
             if modDir and exf.verifyModFilesLocation(profileData, npc, modDir):
                 logger.updateLog(["modDir is "+modDir])
                 exf.hideFiles(modDir, npc, profileData)
             else:# it doesn't have the nif/dds files
-                modDir = exf.requestModFolder(modspath, npc, profilePath)
+                modDir = exf.requestModFolder(profileData, npc)
                 configInfo[currentSession][modfile].append(modDir)
                 exf.saveConfigInfo(configInfo)
                 logger.updateLog(["modDir is "+modDir])

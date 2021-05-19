@@ -170,13 +170,13 @@ def hideFiles(keep, npc, modlist):
             raise nifDdsError("nifs and/or dds's were not hidden as expected")
         else: logger.updateLog(messages)
 
-def requestModFolder(modsPath, npc, profilePath):
-    nifs = locateDataFiles("", 'nif', modsPath, npc, profilePath)
-    for i in range(1, len(nifs)+1):
-        modDir = list(nifs[i-1].parts)[-8]
-        print(str(i)+":",modDir)
+def requestModFolder(npc, modlist):
+    modFiles = locateDataFiles("", npc, modlist)
+    names = list(dict.fromkeys([file.parents[6].name for mod in modFiles for n, file in enumerate(mod) if file not in mod[:n]]))
+    for i, name in enumerate(names):
+        print(str(i+1)+":",name)
     selection = int(input("Please enter the number for the mod you are trying to keep: "))
-    return list(nifs[selection-1].parts)[-8]
+    return names[selection-1]
 
 def determineKeep(listOfMods, modsPath, npc):
     value = False

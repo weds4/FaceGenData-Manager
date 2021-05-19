@@ -122,38 +122,47 @@ def listActiveMods(modlist):# possibly unused
     '''this returns a list of just the folder name for all the full Paths in modlist'''
     return [path.name for path in modlist]
 
-def locateDataFiles(keep, fileType, npc, modlist):# DataFiles == nif, dds
-    '''this returns full Paths to each file that deserves to be hidden.
-A side effect of this function is that the file names are all upper-case,
-so os.rename will rename the file with all upper-case letters, even if the
-original file had lower or mixed-case letters
-    '''
-    return [path for mod in modlist for path in \
-        mod.joinpath(dataPath(fileType)).rglob(npc+'.'+fileType) if mod.name != keep]
+def locateDataFiles(keep, npc, modlist):# DataFiles == nif, dds
+    '''this returns full Paths to each file that deserves to be hidden'''
+    return [pathsList for pathsList in \
+        [[path for path in mod.rglob(npc+'.???')]\
+        for mod in modlist if mod.name != keep] if pathsList]
 
 def hideFiles(keep, npc, modlist):
     '''this does the actual hiding of files using os.rename'''
-    nifs = locateDataFiles(keep, 'nif', npc, modlist)
-    ddss = locateDataFiles(keep, 'dds', npc, modlist)
+    dataFiles = locateDataFiles(keep, npc, modlist)
     messages = []
     error = False
-    if nifs:
-        for file in nifs:
-            fileString = str(file)
-            rename(fileString, fileString+".mohidden")
-        messages.append("nif-hide success!")
-    else:
-        messages.append("Error: did not hide nif")
-        error = True
-    if ddss:
-        for file in ddss:
-            fileString = str(file)
-            rename(fileString, fileString+".mohidden")
-        messages.append("dds-hide success!")
-    else:
-        messages.append("Error: did not hide dds")
-        error = True
+    if dataFiles:
+        messages.append("Data files were found")
+        for modFiles in dataFiles:
+            length = len(modFiles)
+            modname = modFiles[0].parents[6].name
+            if length == 2:# good
+                if modFiles[0].suffix.lower() == '.nif' and modFiles[1].suffix.lower() == '.dds':
+                    for file in modFiles:
+                        fileString = str(file)
+                        #rename(fileString, fileString+".mohidden")
+                    messages.append(f"successfully hid nif and dds for {npc} from \"{modname}\"")
 
+                else:
+                    error = True
+                    messages.append(f"something is wrong with the file structure in \"{modname}\"")
+                    messages.append(f"Error: 2 files found for {npc}, but they failed to be nif and dds")
+            elif length == 1:
+                error = True
+                foundFileType = modFiles[0].suffix.lower()
+                if foundFileType == '.nif':
+                    messages.append(f"\"{modname}\" has only a nif file for {npc}")
+                elif foundFileType == '.dds':
+                    messages.append(f"\"{modname}\" has only a dds file for {npc}")
+            else:
+                error = True
+                messages.append(f"something is wrong with the file structure in \"{modname}\"")
+                messages.append(f"Error: there are more than 2 files with name {npc} and a 3 character suffix")
+    else:
+        error = True
+        messages.append(f"Error: No data files for {npc} found in any active mods!")
     if len(messages) > 0:
         if error:
             logger.updateLog(messages, True)

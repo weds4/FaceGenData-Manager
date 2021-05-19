@@ -148,7 +148,7 @@ def hideFiles(modlist, npc, keep):
                 messages.append(f"Error: there are more than 2 files with name {npc} and a 3 character suffix")
     else:
         error = True
-        messages.append(f"Error: No data files for {npc} found in any active mods!")
+        messages.append(f"Error: No data files for {npc} found in any active mods! (beside the nif+dds in {keep})")
     if len(messages) > 0:
         if error:
             logger.updateLog(messages, True)

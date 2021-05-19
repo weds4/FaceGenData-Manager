@@ -42,7 +42,7 @@ def main():
         if modfile not in configInfo[currentSession]:# if config doesnt have an entry for this mod yet
             modDirs = exf.locateModDir(modfile, profileData)# members of modDirs are Paths
             logger.updateLog(["modDir is "+modDirs[0].name])
-            if exf.verifyModFilesLocation(profileData, npc, modDirs[0]):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
+            if exf.verifyModFilesLocation(npc, modDirs[0]):# check if the mo2\mods folder which has the modfile has the nif/dds files for the current npc
                 configInfo[currentSession][modfile] = [modDirs[0].name] #must be a list to handle bijin scenario, modDirs[0] is a Path!
                 exf.saveConfigInfo(configInfo)
                 exf.hideFiles(profileData, npc, modDirs[0].name)
@@ -53,7 +53,7 @@ def main():
                 exf.hideFiles(profileData, npc, modDir)
         else:# config does have an entry for this mod
             modDir = exf.determineKeep(npc, modspath, configInfo[currentSession][modfile])# modDir type is Path!
-            if modDir and exf.verifyModFilesLocation(profileData, npc, modDir):
+            if modDir and exf.verifyModFilesLocation(npc, modDir):
                 logger.updateLog(["modDir is "+modDir.name])
                 exf.hideFiles(profileData, npc, modDir.name)
             else:# it doesn't have the nif/dds files

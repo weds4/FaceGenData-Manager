@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from os import truncate
+
+
 try:
     from pathlib import Path
     import wx# not included in normal python install
@@ -97,7 +100,7 @@ def locateModDir(ESfile, modlist):# ESFile == esp, esl, esm
     '''this returns a list (of strings) of all "MO2\\mods" directories that have the ESfile in them'''
     return [path.parent for mod in modlist for path in mod.rglob(ESfile)]
 
-def verifyModFilesLocation(modlist, npc, keep):
+def verifyModFilesLocation(npc, keep):
     '''returns True or None if a nif and dds are found. Not Fool-Proof'''
     check = [path for path in keep.rglob(npc+'.???')]# expects keep is Path!
     if check:
@@ -106,16 +109,10 @@ def verifyModFilesLocation(modlist, npc, keep):
             if check[0].parents[1].name.lower() == 'facegeom' and check[1].parents[1].name.lower() == 'facetint':# better!
                 if check[0].name.upper() == f"{npc}.NIF" and check[1].name.upper() == f"{npc}.DDS":# best
                     return True
-                else: pass
-            else:
-                pass
         elif length == 1:
-            pass
+            logger.updateLog(["nif and/or dds missing from {keep.name}"], True)
         else:
-            pass
-
-    if check and check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
-        return True
+            logger.updateLog(["too many files with {npc} in the name in {keep.name}"], True)
 
 def listActiveMods(modlist):# possibly unused
     '''this returns a list of just the folder name for all the full Paths in modlist'''

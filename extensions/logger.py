@@ -10,7 +10,8 @@ def errorLog(etype):
   1. The files are already hidden. You may have already covered this NPC \
 previously.
   2. The no other loaded mods have nifs/dds's for that NPC.
-  3. The NPC is missing the nif/dds from the mods you are trying to overwrite""",
+  3. The NPC is missing the nif/dds from the mods you are trying to overwrite
+  4. Other reasons??""",
 
     if etype == "NoMO2":
         return "You did not choose a valid folder for your current MO2 profile"

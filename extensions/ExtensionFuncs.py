@@ -97,26 +97,12 @@ def locateModDir(ESfile, modlist):# ESFile == esp, esl, esm
     '''this returns a list (of strings) of all "MO2\\mods" directories that have the ESfile in them'''
     return [str(path.parent) for mod in modlist for path in mod.rglob(ESfile)]
 
-def verifyModFilesLocation(modPath, npc):# modPath is full path to mod folder
-    fullPath = Path(modPath+"\\Meshes\\Actors\\Character\\FaceGenData\\FaceGeom")
-    check1 = False
-    check2 = True
-    if fullPath.exists():
-        for path in fullPath.rglob('*.nif'):
-            basename = str(path)[-12:-4]
-            if basename.upper() == npc:
-                check1 = True
-                break
-    else: check1 = False
-    fullPath = Path(modPath+"\\textures\\actors\\character\\facegendata\\facetint")
-    if fullPath.exists():
-        for path in fullPath.rglob('*.dds'):
-            basename = str(path)[-12:-4]
-            if basename.upper() == npc:
-                check2 = True
-                break
-    else: check2 = False
-    return check1 and check2
+def verifyModFilesLocation(npc, modlist, keep):# modPath is full path to mod folder
+    check = [path.name.upper() for mod in modlist \
+             for path in mod.rglob(npc+'.???') if mod.name == keep]
+    if check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
+        return True
+    else: return False
 
 def listActiveMods(modlist):# possibly unused
     '''this returns a list of just the folder name for all the full Paths in modlist'''

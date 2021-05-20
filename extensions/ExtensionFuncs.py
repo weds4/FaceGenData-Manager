@@ -12,10 +12,10 @@ try:
 except ModuleNotFoundError as e:
     input(e)
 
-class MO2Error(Exception):
+class MO2Error(LookupError):
     '''MO2 profile not specified'''
 
-class nifDdsError(Exception):
+class nifDdsError(LookupError):
     '''called for nif or dds files not being found'''
 
 def dataPath(datatype):

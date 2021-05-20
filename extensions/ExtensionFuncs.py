@@ -101,7 +101,7 @@ def locateModDir(ESfile, modlist):# ESFile == esp, esl, esm
     return [path.parent for mod in modlist for path in mod.rglob(ESfile)]
 
 def verifyModFilesLocation(npc, keep):
-    '''returns True or None if a nif and dds are found. Not Fool-Proof'''
+    '''returns True or None if a nif and dds are found'''
     check = [path for path in keep.rglob(npc+'.???')]# expects keep is Path!
     if check:
         length = len(check)
@@ -113,6 +113,8 @@ def verifyModFilesLocation(npc, keep):
             logger.updateLog(["nif and/or dds missing from {keep.name}"], True)
         else:
             logger.updateLog(["too many files with {npc} in the name in {keep.name}"], True)
+    else:
+        logger.updateLog(["nif and dds missing from {keep.name}"], True)
 
 def listActiveMods(modlist):# possibly unused
     '''this returns a list of just the folder name for all the full Paths in modlist'''
@@ -180,7 +182,6 @@ def determineKeep(npc, modspath, listOfMods):# listOfMods is a list of string mo
     for mod in [Path(modspath+modFolder) for modFolder in listOfMods]:
         check = [path.name.upper() for path in mod.rglob(npc+'.???')]
         if check and check[0] == f"{npc}.NIF" and check[1] == f"{npc}.DDS":
-            print(f'type of mod is {type(mod)}')
             return mod
 
 def cleanUpOldSessions(sessionID):# if there are more than 10 saved sessions that are two days older than the current session, delete them

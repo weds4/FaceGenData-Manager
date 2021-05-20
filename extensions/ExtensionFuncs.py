@@ -33,7 +33,7 @@ def loadConfigInfo():
         configfile.seek(0)
         try:
             return load(configfile)
-        except FileNotFoundError():
+        except FileNotFoundError:
             return {}
 
 def saveConfigInfo(config):
@@ -191,15 +191,17 @@ def cleanUpOldSessions(sessionID):# if there are more than 10 saved sessions tha
     keyCount = len(configKeys)
     if keyCount > 10:
         check = False
-        currentTime = int(float(sessionID)/3600/24/365)
+        currentTime = int(float(sessionID)/3600/24)
         i = 0
         while i < keyCount-10:# hopefully this loops over the oldest n configs where n=keycount-10
             # ie keep at least ten sessions and all sessions that have occurred in the last 2 days
             item = configKeys[i]
             try:
-                time_days = int(float(item)/3600/24/365)
-            except ValueError(): continue
-            if time_days+2 < currentTime:
+                time_days = int(float(item)/3600/24)
+            except ValueError:
+                i+=1
+                continue
+            if currentTime - time_days >= 2:
                 config.pop(item)
                 check = True
             i+=1

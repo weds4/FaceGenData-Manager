@@ -110,11 +110,11 @@ def verifyModFilesLocation(npc, keep):
                 if check[0].name.upper() == f"{npc}.NIF" and check[1].name.upper() == f"{npc}.DDS":# best
                     return True
         elif length == 1:
-            logger.updateLog(["nif and/or dds missing from {keep.name}"], True)
+            logger.updateLog([f"nif and/or dds missing from {keep.name}"], True)
         else:
-            logger.updateLog(["too many files with {npc} in the name in {keep.name}"], True)
+            logger.updateLog([f"too many files with {npc} in the name in {keep.name}"], True)
     else:
-        logger.updateLog(["nif and dds missing from {keep.name}"], True)
+        logger.updateLog([f"nif and dds missing from {keep.name}"], True)
 
 def listActiveMods(modlist):# possibly unused
     '''this returns a list of just the folder name for all the full Paths in modlist'''

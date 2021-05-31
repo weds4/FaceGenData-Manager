@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(['NPC_Manager.py'],
-             pathex=['E:\\GitHub\\NPC-FaceData-Manager'],
+             pathex=['E:\\GitHub\\FaceGenData-Manager'],
              binaries=[],
              datas=[],
              hiddenimports=[],

@@ -1,5 +1,6 @@
 # NPC-FaceData-Manager
-NPC conflict manager uses xEdit and Pytohn
+NPC conflict manager uses xEdit and Python.
+
 Basically when you load multiple NPC mods you have plenty of conflicts, both in the esps and in loose files.
 In order to patch these NPCs manually, you must choose the NPC record from the mod you want and then hide the loose files for that npc from the other mods that add it (simplified explaination)
 

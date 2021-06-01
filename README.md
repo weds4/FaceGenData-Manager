@@ -13,6 +13,7 @@ How to use: run SSEEdit with your full mod list (but before smashed/bashed patch
 
 
 \*if the NPC uses a template record (ABCS -> Template Flags -> Use Traits), then the NPC record will be copied, but the hiding program will not run. This is because the FaceGen files for that NPC rely on the FaceGen data of a different NPC (the template) so there will not be any files to hide
+
 \*\*this program only hides loose files, so FaceGen data that is packed into .bsa's can still cause problems, depending on load order.
 
 
